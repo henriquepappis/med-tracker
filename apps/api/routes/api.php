@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Medication\MedicationController;
 use App\Http\Controllers\User\UserProfileController;
 
 Route::get('/health', fn() => response()->json(['status' => 'ok']));
@@ -17,4 +18,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [UserProfileController::class, 'show']);
         Route::put('/profile', [UserProfileController::class, 'update']);
     });
+});
+
+Route::middleware('auth:sanctum')->prefix('medications')->group(function () {
+    Route::get('/', [MedicationController::class, 'index']);
+    Route::post('/', [MedicationController::class, 'store']);
+    Route::get('/{medication}', [MedicationController::class, 'show']);
+    Route::put('/{medication}', [MedicationController::class, 'update']);
+    Route::delete('/{medication}', [MedicationController::class, 'destroy']);
 });
