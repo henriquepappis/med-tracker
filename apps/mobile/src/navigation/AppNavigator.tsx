@@ -3,8 +3,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
-import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
+import MedicationFormScreen from '../screens/MedicationFormScreen';
+import MedicationListScreen from '../screens/MedicationListScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 
 type AuthStackParamList = {
@@ -13,7 +14,8 @@ type AuthStackParamList = {
 };
 
 type AppStackParamList = {
-  Home: undefined;
+  Medications: undefined;
+  MedicationForm: { medication?: { id: number; name: string; dosage: string; instructions?: string | null } };
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -35,7 +37,12 @@ export default function AppNavigator() {
     <NavigationContainer>
       {token ? (
         <AppStack.Navigator>
-          <AppStack.Screen name="Home" component={HomeScreen} />
+          <AppStack.Screen
+            name="Medications"
+            component={MedicationListScreen}
+            options={{ headerShown: false }}
+          />
+          <AppStack.Screen name="MedicationForm" component={MedicationFormScreen} />
         </AppStack.Navigator>
       ) : (
         <AuthStack.Navigator screenOptions={{ headerShown: false }}>
