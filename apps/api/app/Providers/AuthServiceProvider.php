@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Intake;
 use App\Models\Medication;
 use App\Models\Schedule;
+use App\Policies\IntakePolicy;
 use App\Policies\MedicationPolicy;
 use App\Policies\SchedulePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        Intake::class => IntakePolicy::class,
         Medication::class => MedicationPolicy::class,
         Schedule::class => SchedulePolicy::class,
     ];
