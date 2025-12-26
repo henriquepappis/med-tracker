@@ -84,11 +84,13 @@ class UpdateScheduleRequest extends FormRequest
             if ($required && (! is_array($existingTimes) || count($existingTimes) === 0)) {
                 $validator->errors()->add('times', 'Times must be a non-empty array.');
             }
+
             return;
         }
 
         if (! is_array($times) || count($times) === 0) {
             $validator->errors()->add('times', 'Times must be a non-empty array.');
+
             return;
         }
 
@@ -96,6 +98,7 @@ class UpdateScheduleRequest extends FormRequest
         foreach ($times as $time) {
             if (! is_string($time) || ! preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $time)) {
                 $validator->errors()->add('times', 'Each time must be in HH:mm format.');
+
                 return;
             }
             $normalized[] = $time;
@@ -112,11 +115,13 @@ class UpdateScheduleRequest extends FormRequest
             if ($required && (! is_array($existingWeekdays) || count($existingWeekdays) === 0)) {
                 $validator->errors()->add('weekdays', 'Weekdays must be a non-empty array.');
             }
+
             return;
         }
 
         if (! is_array($weekdays) || count($weekdays) === 0) {
             $validator->errors()->add('weekdays', 'Weekdays must be a non-empty array.');
+
             return;
         }
 
@@ -126,12 +131,14 @@ class UpdateScheduleRequest extends FormRequest
         foreach ($weekdays as $weekday) {
             if (! is_string($weekday)) {
                 $validator->errors()->add('weekdays', 'Each weekday must be a string.');
+
                 return;
             }
 
             $value = strtolower($weekday);
             if (! in_array($value, $allowed, true)) {
                 $validator->errors()->add('weekdays', 'Weekdays must be one of mon, tue, wed, thu, fri, sat, sun.');
+
                 return;
             }
 
@@ -149,6 +156,7 @@ class UpdateScheduleRequest extends FormRequest
             if ($required && ($existingIntervalHours === null)) {
                 $validator->errors()->add('interval_hours', 'Interval hours is required.');
             }
+
             return;
         }
 
@@ -213,10 +221,12 @@ class UpdateScheduleRequest extends FormRequest
                 $existingWeekdays = $this->normalizeWeekdays($other->weekdays);
                 if ($this->weekdaysOverlap($normalizedWeekdays, $existingWeekdays)) {
                     $validator->errors()->add('weekdays', 'Overlapping weekly schedules are not allowed.');
+
                     return;
                 }
             } else {
                 $validator->errors()->add('times', 'Overlapping schedules with identical times are not allowed.');
+
                 return;
             }
         }
@@ -224,19 +234,6 @@ class UpdateScheduleRequest extends FormRequest
 
     private function normalizeTimes($times): ?array
     {
-<<<<<<< HEAD
-        if (! is_array($days) || count($days) === 0) {
-            $validator->errors()->add('payload.days', 'Days must be a non-empty array.');
-
-            return;
-        }
-
-        foreach ($days as $day) {
-            if (! is_int($day) || $day < 1 || $day > 7) {
-                $validator->errors()->add('payload.days', 'Each day must be an integer between 1 and 7.');
-
-                return;
-=======
         if (! is_array($times)) {
             return null;
         }
@@ -245,28 +242,19 @@ class UpdateScheduleRequest extends FormRequest
         foreach ($times as $time) {
             if (! is_string($time)) {
                 return null;
->>>>>>> 23af205 (SCHED-1: align schedule model, routes, and validations)
             }
             $normalized[] = $time;
         }
 
         sort($normalized);
+
         return $normalized;
     }
 
     private function normalizeWeekdays($weekdays): array
     {
-<<<<<<< HEAD
-        $everyMinutes = $payload['every_minutes'] ?? null;
-
-        if (! is_int($everyMinutes) || $everyMinutes < 15) {
-            $validator->errors()->add('payload.every_minutes', 'Every minutes must be an integer of at least 15.');
-
-            return;
-=======
         if (! is_array($weekdays)) {
             return [];
->>>>>>> 23af205 (SCHED-1: align schedule model, routes, and validations)
         }
 
         $normalized = array_map('strtolower', array_filter($weekdays, 'is_string'));
