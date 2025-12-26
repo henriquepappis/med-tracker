@@ -189,7 +189,7 @@ Status: ✅ Completed
 * Expo + TypeScript
 * Navigation
 * Environment config
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 

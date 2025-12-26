@@ -1,0 +1,4 @@
+apps/api/build/
+apps/mobile/node_modules/
+apps/mobile/.expo/
+apps/mobile/.env
