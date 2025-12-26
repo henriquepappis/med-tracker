@@ -82,4 +82,47 @@ class MedicationTest extends TestCase
             ->assertJsonFragment(['id' => $active->id])
             ->assertJsonFragment(['id' => $inactive->id]);
     }
+
+    public function test_user_can_update_medication(): void
+    {
+        $user = User::factory()->create();
+        $medication = $user->medications()->create([
+            'name' => 'Vitamin D',
+            'dosage' => '1 pill',
+            'instructions' => 'After breakfast',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user, 'sanctum');
+
+        $this->putJson("/api/medications/{$medication->id}", [
+            'name' => 'Vitamin D3',
+            'dosage' => '2 pills',
+        ])->assertStatus(200)
+            ->assertJsonFragment([
+                'name' => 'Vitamin D3',
+                'dosage' => '2 pills',
+            ]);
+    }
+
+    public function test_user_can_deactivate_medication(): void
+    {
+        $user = User::factory()->create();
+        $medication = $user->medications()->create([
+            'name' => 'Vitamin D',
+            'dosage' => '1 pill',
+            'instructions' => 'After breakfast',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user, 'sanctum');
+
+        $this->deleteJson("/api/medications/{$medication->id}")
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('medications', [
+            'id' => $medication->id,
+            'is_active' => false,
+        ]);
+    }
 }
