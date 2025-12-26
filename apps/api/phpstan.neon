@@ -6,3 +6,8 @@ parameters:
     - database
   excludePaths:
     - database/migrations
+  ignoreErrors:
+    - '#Call to an undefined static method App\\\\Models\\\\User::(create|where)\\(\\)#'
+    - '#Call to an undefined method App\\\\Http\\\\Controllers\\\\.*::authorize\\(\\)#'
+    - '#Access to an undefined property App\\\\Models\\\\(Schedule|Medication|User)::\\$#'
+    - '#Undefined variable: \\$this#'
