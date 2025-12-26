@@ -169,12 +169,13 @@ paths:
           description: Deactivated medication
         "404":
           description: Not Found
-  /schedules:
+  /medications/{medication}/schedules:
     get:
-      summary: List schedules
+      summary: List schedules for medication
       security:
         - bearerAuth: []
       parameters:
+        - $ref: "#/components/parameters/MedicationId"
         - $ref: "#/components/parameters/IncludeInactive"
       responses:
         "200":
@@ -185,6 +186,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Schedule"
+  /schedules:
     post:
       summary: Create schedule
       security:
@@ -380,22 +382,22 @@ components:
       properties:
         id:
           type: integer
-        user_id:
-          type: integer
         medication_id:
           type: integer
-        type:
+        recurrence_type:
           type: string
           enum: [daily, weekly, interval]
-        payload:
-          type: object
-        starts_at:
-          type: string
-          format: date-time
+        times:
+          type: array
+          items:
+            type: string
+        weekdays:
+          type: array
+          items:
+            type: string
           nullable: true
-        ends_at:
-          type: string
-          format: date-time
+        interval_hours:
+          type: integer
           nullable: true
         is_active:
           type: boolean
@@ -407,40 +409,44 @@ components:
           format: date-time
     ScheduleCreateRequest:
       type: object
-      required: [medication_id, type, payload]
+      required: [medication_id, recurrence_type]
       properties:
         medication_id:
           type: integer
-        type:
+        recurrence_type:
           type: string
           enum: [daily, weekly, interval]
-        payload:
-          type: object
-        starts_at:
-          type: string
-          format: date-time
+        times:
+          type: array
+          items:
+            type: string
+        weekdays:
+          type: array
+          items:
+            type: string
           nullable: true
-        ends_at:
-          type: string
-          format: date-time
+        interval_hours:
+          type: integer
           nullable: true
         is_active:
           type: boolean
     ScheduleUpdateRequest:
       type: object
       properties:
-        type:
+        recurrence_type:
           type: string
           enum: [daily, weekly, interval]
-        payload:
-          type: object
-        starts_at:
-          type: string
-          format: date-time
+        times:
+          type: array
+          items:
+            type: string
+        weekdays:
+          type: array
+          items:
+            type: string
           nullable: true
-        ends_at:
-          type: string
-          format: date-time
+        interval_hours:
+          type: integer
           nullable: true
         is_active:
           type: boolean

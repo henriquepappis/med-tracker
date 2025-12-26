@@ -24,21 +24,20 @@ class ScheduleTest extends TestCase
 
         $response = $this->postJson('/api/schedules', [
             'medication_id' => $medication->id,
-            'type' => 'daily',
-            'payload' => ['times' => ['08:00', '20:00']],
+            'recurrence_type' => 'daily',
+            'times' => ['08:00', '20:00'],
         ]);
 
         $response->assertStatus(201)
             ->assertJsonFragment([
                 'medication_id' => $medication->id,
-                'type' => 'daily',
+                'recurrence_type' => 'daily',
                 'is_active' => true,
             ]);
 
         $this->assertDatabaseHas('schedules', [
             'medication_id' => $medication->id,
-            'user_id' => $user->id,
-            'type' => 'daily',
+            'recurrence_type' => 'daily',
         ]);
     }
 
@@ -52,10 +51,10 @@ class ScheduleTest extends TestCase
             'instructions' => 'After breakfast',
             'is_active' => true,
         ]);
-        $schedule = $owner->schedules()->create([
+        $schedule = $medication->schedules()->create([
             'medication_id' => $medication->id,
-            'type' => 'daily',
-            'payload' => ['times' => ['08:00']],
+            'recurrence_type' => 'daily',
+            'times' => ['08:00'],
             'is_active' => true,
         ]);
 
@@ -75,27 +74,25 @@ class ScheduleTest extends TestCase
             'is_active' => true,
         ]);
 
-        $active = $user->schedules()->create([
-            'medication_id' => $medication->id,
-            'type' => 'daily',
-            'payload' => ['times' => ['08:00']],
+        $active = $medication->schedules()->create([
+            'recurrence_type' => 'daily',
+            'times' => ['08:00'],
             'is_active' => true,
         ]);
-        $inactive = $user->schedules()->create([
-            'medication_id' => $medication->id,
-            'type' => 'daily',
-            'payload' => ['times' => ['20:00']],
+        $inactive = $medication->schedules()->create([
+            'recurrence_type' => 'daily',
+            'times' => ['20:00'],
             'is_active' => false,
         ]);
 
         $this->actingAs($user, 'sanctum');
 
-        $this->getJson('/api/schedules')
+        $this->getJson("/api/medications/{$medication->id}/schedules")
             ->assertStatus(200)
             ->assertJsonFragment(['id' => $active->id])
             ->assertJsonMissing(['id' => $inactive->id]);
 
-        $this->getJson('/api/schedules?include_inactive=true')
+        $this->getJson("/api/medications/{$medication->id}/schedules?include_inactive=true")
             ->assertStatus(200)
             ->assertJsonFragment(['id' => $active->id])
             ->assertJsonFragment(['id' => $inactive->id]);

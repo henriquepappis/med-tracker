@@ -27,10 +27,10 @@ Route::middleware('auth:sanctum')->prefix('medications')->group(function () {
     Route::get('/{medication}', [MedicationController::class, 'show']);
     Route::put('/{medication}', [MedicationController::class, 'update']);
     Route::delete('/{medication}', [MedicationController::class, 'destroy']);
+    Route::get('/{medication}/schedules', [ScheduleController::class, 'indexForMedication']);
 });
 
 Route::middleware('auth:sanctum')->prefix('schedules')->group(function () {
-    Route::get('/', [ScheduleController::class, 'index']);
     Route::post('/', [ScheduleController::class, 'store']);
     Route::get('/{schedule}', [ScheduleController::class, 'show']);
     Route::put('/{schedule}', [ScheduleController::class, 'update']);

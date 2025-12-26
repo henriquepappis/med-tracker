@@ -8,26 +8,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Schedule extends Model
 {
     protected $fillable = [
-        'user_id',
         'medication_id',
-        'type',
-        'payload',
-        'starts_at',
-        'ends_at',
+        'recurrence_type',
+        'times',
+        'weekdays',
+        'interval_hours',
         'is_active',
     ];
 
     protected $casts = [
-        'payload' => 'array',
-        'starts_at' => 'datetime',
-        'ends_at' => 'datetime',
+        'times' => 'array',
+        'weekdays' => 'array',
         'is_active' => 'boolean',
     ];
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
 
     public function medication(): BelongsTo
     {

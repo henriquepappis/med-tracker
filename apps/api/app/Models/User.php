@@ -53,9 +53,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Medication::class);
     }
-
-    public function schedules()
-    {
-        return $this->hasMany(Schedule::class);
-    }
 }
