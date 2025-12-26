@@ -208,7 +208,7 @@ Status: ✅ Completed
 * Create
 * Edit
 * Deactivate
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
