@@ -21,7 +21,9 @@ class MedicationService
 
     public function createForUser(User $user, array $data): Medication
     {
-        return $user->medications()->create($data);
+        $medication = $user->medications()->create($data);
+
+        return $medication->fresh();
     }
 
     public function updateMedication(Medication $medication, array $data): Medication

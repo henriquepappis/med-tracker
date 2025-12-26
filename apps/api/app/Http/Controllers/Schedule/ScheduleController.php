@@ -5,16 +5,19 @@ namespace App\Http\Controllers\Schedule;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Schedule\StoreScheduleRequest;
 use App\Http\Requests\Schedule\UpdateScheduleRequest;
+use App\Models\Medication;
 use App\Models\Schedule;
 use App\Services\ScheduleService;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
 {
-    public function index(Request $request, ScheduleService $service)
+    public function indexForMedication(Request $request, Medication $medication, ScheduleService $service)
     {
+        $this->authorize('view', $medication);
+
         $includeInactive = $request->boolean('include_inactive');
-        $items = $service->listForUser($request->user(), $includeInactive);
+        $items = $service->listForMedication($medication, $includeInactive);
 
         return response()->json($items);
     }

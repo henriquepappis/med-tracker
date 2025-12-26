@@ -25,7 +25,9 @@ class SchedulePolicy
 
     private function ownsSchedule(User $user, Schedule $schedule): Response
     {
-        return $schedule->user_id === $user->id
+        $medication = $schedule->medication;
+
+        return $medication && $medication->user_id === $user->id
             ? Response::allow()
             : Response::denyAsNotFound();
     }

@@ -2,15 +2,16 @@
 
 namespace App\Services;
 
+use App\Models\Medication;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class ScheduleService
 {
-    public function listForUser(User $user, bool $includeInactive = false): Collection
+    public function listForMedication(Medication $medication, bool $includeInactive = false): Collection
     {
-        $query = $user->schedules()->orderByDesc('id');
+        $query = $medication->schedules()->orderByDesc('id');
 
         if (! $includeInactive) {
             $query->where('is_active', true);
@@ -21,13 +22,15 @@ class ScheduleService
 
     public function createForUser(User $user, array $data): Schedule
     {
-        $ownsMedication = $user->medications()->whereKey($data['medication_id'])->exists();
+        $medication = $user->medications()->whereKey($data['medication_id'])->first();
 
-        if (! $ownsMedication) {
+        if (! $medication) {
             abort(404, 'Not Found');
         }
 
-        return $user->schedules()->create($data);
+        $schedule = $medication->schedules()->create($data);
+
+        return $schedule->fresh();
     }
 
     public function updateSchedule(Schedule $schedule, array $data): Schedule
