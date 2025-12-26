@@ -17,6 +17,8 @@
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
+        "nunomaduro/larastan": "^2.9",
+        "phpstan/phpstan": "^1.11",
         "nunomaduro/collision": "^8.6",
         "phpunit/phpunit": "^11.5.3"
     },
@@ -33,6 +35,9 @@
         }
     },
     "scripts": {
+        "lint": "vendor/bin/pint --test",
+        "lint:fix": "vendor/bin/pint",
+        "stan": "vendor/bin/phpstan analyse --configuration=phpstan.neon",
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
