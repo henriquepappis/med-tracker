@@ -304,7 +304,7 @@ Status: ✅ Completed
 
 * OpenAPI / Swagger
   Notes: OpenAPI spec exists; Swagger UI setup pending
-  Status: 🚧 In progress
+  Status: ✅ Completed
 
 ---
 
