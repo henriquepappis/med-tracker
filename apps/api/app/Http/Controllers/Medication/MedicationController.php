@@ -3,69 +3,50 @@
 namespace App\Http\Controllers\Medication;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Medication\StoreMedicationRequest;
+use App\Http\Requests\Medication\UpdateMedicationRequest;
 use App\Models\Medication;
+use App\Services\MedicationService;
 use Illuminate\Http\Request;
 
 class MedicationController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, MedicationService $service)
     {
-        $items = $request->user()
-            ->medications()
-            ->orderByDesc('id')
-            ->get();
+        $includeInactive = $request->boolean('include_inactive');
+        $items = $service->listForUser($request->user(), $includeInactive);
 
         return response()->json($items);
     }
 
-    public function store(Request $request)
+    public function store(StoreMedicationRequest $request, MedicationService $service)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'dosage' => ['required', 'string', 'max:255'],
-            'instructions' => ['nullable', 'string'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]);
-
-        $medication = $request->user()->medications()->create($data);
+        $medication = $service->createForUser($request->user(), $request->validated());
 
         return response()->json($medication, 201);
     }
 
     public function show(Request $request, Medication $medication)
     {
-        if ($medication->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Not Found'], 404);
-        }
+        $this->authorize('view', $medication);
 
         return response()->json($medication);
     }
 
-    public function update(Request $request, Medication $medication)
+    public function update(UpdateMedicationRequest $request, Medication $medication, MedicationService $service)
     {
-        if ($medication->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Not Found'], 404);
-        }
+        $this->authorize('update', $medication);
 
-        $data = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'dosage' => ['sometimes', 'string', 'max:255'],
-            'instructions' => ['nullable', 'string'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]);
+        $medication = $service->updateMedication($medication, $request->validated());
 
-        $medication->update($data);
-
-        return response()->json($medication->fresh());
+        return response()->json($medication);
     }
 
-    public function destroy(Request $request, Medication $medication)
+    public function destroy(Request $request, Medication $medication, MedicationService $service)
     {
-        if ($medication->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Not Found'], 404);
-        }
+        $this->authorize('delete', $medication);
 
-        $medication->update(['is_active' => false]);
+        $service->deactivateMedication($medication);
 
         return response()->json(['message' => 'Medication deactivated']);
     }

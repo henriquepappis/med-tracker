@@ -4,19 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\User;
 
-class Medication extends Model
+class Schedule extends Model
 {
     protected $fillable = [
-        'name',
-        'dosage',
-        'instructions',
+        'user_id',
+        'medication_id',
+        'type',
+        'payload',
+        'starts_at',
+        'ends_at',
         'is_active',
     ];
 
     protected $casts = [
+        'payload' => 'array',
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
         'is_active' => 'boolean',
     ];
 
@@ -25,8 +29,8 @@ class Medication extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function schedules(): HasMany
+    public function medication(): BelongsTo
     {
-        return $this->hasMany(Schedule::class);
+        return $this->belongsTo(Medication::class);
     }
 }
