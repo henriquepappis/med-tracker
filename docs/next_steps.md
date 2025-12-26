@@ -198,7 +198,7 @@ Status: ✅ Completed
 * Login
 * Register
 * Token persistence
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
