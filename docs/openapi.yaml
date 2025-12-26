@@ -480,6 +480,8 @@ components:
       properties:
         token:
           type: string
+      example:
+        token: "1|example_token"
     RegisterRequest:
       type: object
       required: [name, email, password]
@@ -490,6 +492,10 @@ components:
           type: string
         password:
           type: string
+      example:
+        name: "Jane Doe"
+        email: "jane@example.com"
+        password: "secret123"
     LoginRequest:
       type: object
       required: [email, password]
@@ -498,6 +504,9 @@ components:
           type: string
         password:
           type: string
+      example:
+        email: "jane@example.com"
+        password: "secret123"
     User:
       type: object
       properties:
@@ -519,6 +528,14 @@ components:
         updated_at:
           type: string
           format: date-time
+      example:
+        id: 1
+        name: "Jane Doe"
+        email: "jane@example.com"
+        timezone: "UTC"
+        language: "en"
+        created_at: "2025-12-26T08:00:00Z"
+        updated_at: "2025-12-26T08:00:00Z"
     UserProfileUpdateRequest:
       type: object
       required: [timezone, language]
@@ -528,6 +545,9 @@ components:
         language:
           type: string
           enum: [en, pt-BR]
+      example:
+        timezone: "America/Sao_Paulo"
+        language: "pt-BR"
     Medication:
       type: object
       properties:
@@ -550,6 +570,15 @@ components:
         updated_at:
           type: string
           format: date-time
+      example:
+        id: 10
+        user_id: 1
+        name: "Vitamin D"
+        dosage: "1 pill"
+        instructions: "After breakfast"
+        is_active: true
+        created_at: "2025-12-26T08:00:00Z"
+        updated_at: "2025-12-26T08:00:00Z"
     MedicationCreateRequest:
       type: object
       required: [name, dosage]
@@ -563,6 +592,11 @@ components:
           nullable: true
         is_active:
           type: boolean
+      example:
+        name: "Vitamin D"
+        dosage: "1 pill"
+        instructions: "After breakfast"
+        is_active: true
     MedicationUpdateRequest:
       type: object
       properties:
@@ -575,6 +609,11 @@ components:
           nullable: true
         is_active:
           type: boolean
+      example:
+        name: "Vitamin D"
+        dosage: "2 pills"
+        instructions: "After breakfast"
+        is_active: true
     Schedule:
       type: object
       properties:
@@ -605,6 +644,16 @@ components:
         updated_at:
           type: string
           format: date-time
+      example:
+        id: 100
+        medication_id: 10
+        recurrence_type: "daily"
+        times: ["08:00", "20:00"]
+        weekdays: null
+        interval_hours: null
+        is_active: true
+        created_at: "2025-12-26T08:00:00Z"
+        updated_at: "2025-12-26T08:00:00Z"
     ScheduleCreateRequest:
       type: object
       required: [medication_id, recurrence_type]
@@ -628,6 +677,13 @@ components:
           nullable: true
         is_active:
           type: boolean
+      example:
+        medication_id: 10
+        recurrence_type: "daily"
+        times: ["08:00", "20:00"]
+        weekdays: null
+        interval_hours: null
+        is_active: true
     ScheduleUpdateRequest:
       type: object
       properties:
@@ -648,6 +704,12 @@ components:
           nullable: true
         is_active:
           type: boolean
+      example:
+        recurrence_type: "weekly"
+        times: ["09:00"]
+        weekdays: ["mon", "wed", "fri"]
+        interval_hours: null
+        is_active: true
     Intake:
       type: object
       properties:
@@ -668,6 +730,14 @@ components:
         created_at:
           type: string
           format: date-time
+      example:
+        id: 500
+        schedule_id: 100
+        medication_id: 10
+        user_id: 1
+        status: "taken"
+        taken_at: "2025-12-26T08:05:00Z"
+        created_at: "2025-12-26T08:05:00Z"
     IntakeCreateRequest:
       type: object
       required: [schedule_id, status]
@@ -678,8 +748,12 @@ components:
           type: string
           enum: [taken, skipped]
         taken_at:
-        type: string
-        format: date-time
+          type: string
+          format: date-time
+      example:
+        schedule_id: 100
+        status: "taken"
+        taken_at: "2025-12-26T08:05:00Z"
     AdherenceReport:
       type: object
       properties:
@@ -703,6 +777,15 @@ components:
         adherence:
           type: number
           format: float
+      example:
+        period: "daily"
+        period_start: "2025-12-26T00:00:00Z"
+        period_end: "2025-12-26T23:59:59Z"
+        expected: 2
+        taken: 1
+        skipped: 1
+        missed: 0
+        adherence: 0.5
     AdherenceSummary:
       type: object
       properties:
@@ -733,6 +816,24 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AdherenceMedicationBreakdown"
+      example:
+        period:
+          from: "2025-12-26T00:00:00Z"
+          to: "2025-12-26T23:59:59Z"
+        summary:
+          expected: 2
+          taken: 1
+          skipped: 0
+          missed: 1
+          adherence_rate: 0.5
+        by_medication:
+          - medication_id: 10
+            medication_name: "Vitamin D"
+            expected: 2
+            taken: 1
+            skipped: 0
+            missed: 1
+            adherence_rate: 0.5
     AdherenceMedicationBreakdown:
       type: object
       properties:
@@ -751,6 +852,14 @@ components:
         adherence_rate:
           type: number
           format: float
+      example:
+        medication_id: 10
+        medication_name: "Vitamin D"
+        expected: 2
+        taken: 1
+        skipped: 0
+        missed: 1
+        adherence_rate: 0.5
     AdherenceScheduleBreakdown:
       type: object
       properties:
@@ -769,6 +878,14 @@ components:
         adherence_rate:
           type: number
           format: float
+      example:
+        schedule_id: 100
+        medication_id: 10
+        expected: 2
+        taken: 1
+        skipped: 0
+        missed: 1
+        adherence_rate: 0.5
     IntakeTimelineItem:
       type: object
       properties:
@@ -782,3 +899,8 @@ components:
           type: integer
         schedule_id:
           type: integer
+      example:
+        scheduled_at: "2025-12-26T08:00:00Z"
+        status: "missed"
+        medication_id: 10
+        schedule_id: 100
