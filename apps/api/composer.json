@@ -54,6 +54,10 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "test:coverage": [
+            "@php artisan config:clear --ansi",
+            "@php -d pcov.enabled=1 -d pcov.directory=app vendor/bin/phpunit --coverage-clover build/logs/coverage.xml --coverage-text"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
