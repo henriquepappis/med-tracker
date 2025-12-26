@@ -4,7 +4,7 @@ namespace App\Http\Requests\Report;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class IntakeTimelineRequest extends FormRequest
+class AdherenceScheduleBreakdownRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,7 +17,6 @@ class IntakeTimelineRequest extends FormRequest
             'from' => ['required', 'date'],
             'to' => ['required', 'date', 'after_or_equal:from'],
             'medication_id' => ['sometimes', 'integer', 'exists:medications,id'],
-            'schedule_id' => ['sometimes', 'integer', 'exists:schedules,id'],
         ];
     }
 }

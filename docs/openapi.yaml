@@ -330,6 +330,65 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdherenceSummary"
+  /reports/adherence/medications:
+    get:
+      summary: Medication adherence breakdown
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Medication adherence breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdherenceMedicationBreakdown"
+  /reports/adherence/schedules:
+    get:
+      summary: Schedule adherence breakdown
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: medication_id
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Schedule adherence breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdherenceScheduleBreakdown"
   /reports/adherence/weekly:
     get:
       summary: Weekly adherence report
@@ -374,7 +433,12 @@ paths:
             format: date
         - in: query
           name: schedule_id
-          required: true
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: medication_id
+          required: false
           schema:
             type: integer
       responses:
@@ -665,6 +729,46 @@ components:
             adherence_rate:
               type: number
               format: float
+        by_medication:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdherenceMedicationBreakdown"
+    AdherenceMedicationBreakdown:
+      type: object
+      properties:
+        medication_id:
+          type: integer
+        medication_name:
+          type: string
+        expected:
+          type: integer
+        taken:
+          type: integer
+        skipped:
+          type: integer
+        missed:
+          type: integer
+        adherence_rate:
+          type: number
+          format: float
+    AdherenceScheduleBreakdown:
+      type: object
+      properties:
+        schedule_id:
+          type: integer
+        medication_id:
+          type: integer
+        expected:
+          type: integer
+        taken:
+          type: integer
+        skipped:
+          type: integer
+        missed:
+          type: integer
+        adherence_rate:
+          type: number
+          format: float
     IntakeTimelineItem:
       type: object
       properties:
@@ -674,3 +778,7 @@ components:
         status:
           type: string
           enum: [taken, skipped, missed, pending]
+        medication_id:
+          type: integer
+        schedule_id:
+          type: integer

@@ -49,6 +49,8 @@ Route::middleware('auth:sanctum')->prefix('reports/adherence')->group(function (
     Route::get('/weekly', [AdherenceReportController::class, 'weekly']);
     Route::get('/monthly', [AdherenceReportController::class, 'monthly']);
     Route::get('/', [AdherenceReportController::class, 'summary']);
+    Route::get('/medications', [AdherenceReportController::class, 'medicationBreakdown']);
+    Route::get('/schedules', [AdherenceReportController::class, 'scheduleBreakdown']);
 });
 
 Route::middleware('auth:sanctum')->get('/reports/intake-timeline', [AdherenceReportController::class, 'timeline']);
