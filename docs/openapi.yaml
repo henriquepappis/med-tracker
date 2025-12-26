@@ -295,6 +295,41 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdherenceReport"
+  /reports/adherence:
+    get:
+      summary: Adherence summary
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: medication_id
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: schedule_id
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Adherence summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdherenceSummary"
   /reports/adherence/weekly:
     get:
       summary: Weekly adherence report
@@ -319,6 +354,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdherenceReport"
+  /reports/intake-timeline:
+    get:
+      summary: Intake timeline
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: from
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: to
+          required: true
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: schedule_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Intake timeline
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IntakeTimelineItem"
 components:
   securitySchemes:
     bearerAuth:
@@ -547,8 +614,8 @@ components:
           type: string
           enum: [taken, skipped]
         taken_at:
-          type: string
-          format: date-time
+        type: string
+        format: date-time
     AdherenceReport:
       type: object
       properties:
@@ -572,3 +639,38 @@ components:
         adherence:
           type: number
           format: float
+    AdherenceSummary:
+      type: object
+      properties:
+        period:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date-time
+            to:
+              type: string
+              format: date-time
+        summary:
+          type: object
+          properties:
+            expected:
+              type: integer
+            taken:
+              type: integer
+            skipped:
+              type: integer
+            missed:
+              type: integer
+            adherence_rate:
+              type: number
+              format: float
+    IntakeTimelineItem:
+      type: object
+      properties:
+        scheduled_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [taken, skipped, missed, pending]

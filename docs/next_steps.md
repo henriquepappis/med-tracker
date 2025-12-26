@@ -151,7 +151,7 @@ Status: ✅ Completed
 
 * Compute missed doses based on schedules
 * No manual “missed” creation
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
