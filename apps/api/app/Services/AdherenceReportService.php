@@ -138,7 +138,7 @@ class AdherenceReportService
         }
 
         $minutes = $intervalHours * 60;
-        $diffMinutes = $start->diffInMinutes($end);
+        $diffMinutes = (int) $start->diffInMinutes($end);
 
         return intdiv($diffMinutes, $minutes) + 1;
     }
