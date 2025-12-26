@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $user_id
+ * @property int $medication_id
+ * @property int $schedule_id
  */
 class Intake extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'schedule_id',
         'medication_id',

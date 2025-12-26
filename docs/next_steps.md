@@ -143,7 +143,7 @@ Status: ✅ Completed
 * Taken
 * Skipped
 * Missed (derived)
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
@@ -159,7 +159,7 @@ Status: ✅ Completed
 
 * Intake recording
 * Edge cases
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 

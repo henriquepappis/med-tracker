@@ -252,6 +252,37 @@ paths:
           description: Deactivated schedule
         "404":
           description: Not Found
+  /intakes:
+    get:
+      summary: List intakes
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Intakes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Intake"
+    post:
+      summary: Create intake
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntakeCreateRequest"
+      responses:
+        "201":
+          description: Created intake
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Intake"
 components:
   securitySchemes:
     bearerAuth:
@@ -450,3 +481,35 @@ components:
           nullable: true
         is_active:
           type: boolean
+    Intake:
+      type: object
+      properties:
+        id:
+          type: integer
+        schedule_id:
+          type: integer
+        medication_id:
+          type: integer
+        user_id:
+          type: integer
+        status:
+          type: string
+          enum: [taken, skipped]
+        taken_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    IntakeCreateRequest:
+      type: object
+      required: [schedule_id, status]
+      properties:
+        schedule_id:
+          type: integer
+        status:
+          type: string
+          enum: [taken, skipped]
+        taken_at:
+          type: string
+          format: date-time
