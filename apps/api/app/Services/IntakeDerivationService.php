@@ -13,50 +13,17 @@ class IntakeDerivationService
 {
     private const DEFAULT_TOLERANCE_MINUTES = 30;
 
-    public function adherenceSummary(
+    public function deriveStatuses(
         User $user,
         string $from,
         string $to,
         ?int $medicationId = null,
         ?int $scheduleId = null
-    ): array {
+    ): Collection {
         [$start, $end] = $this->resolveRange($user, $from, $to);
-
         $occurrences = $this->buildOccurrences($user, $start, $end, $medicationId, $scheduleId);
-        $statuses = $this->resolveStatuses($user, $occurrences, $start, $end);
 
-        $taken = $statuses->where('status', 'taken')->count();
-        $skipped = $statuses->where('status', 'skipped')->count();
-        $missed = $statuses->where('status', 'missed')->count();
-        $expected = $taken + $skipped + $missed;
-        $denominator = max(0, $expected - $skipped);
-        $rate = $denominator > 0 ? round($taken / $denominator, 4) : 0.0;
-
-        return [
-            'period' => [
-                'from' => $start->toISOString(),
-                'to' => $end->toISOString(),
-            ],
-            'summary' => [
-                'expected' => $expected,
-                'taken' => $taken,
-                'skipped' => $skipped,
-                'missed' => $missed,
-                'adherence_rate' => $rate,
-            ],
-        ];
-    }
-
-    public function intakeTimeline(User $user, string $from, string $to, int $scheduleId): array
-    {
-        [$start, $end] = $this->resolveRange($user, $from, $to);
-        $occurrences = $this->buildOccurrences($user, $start, $end, null, $scheduleId);
-        $statuses = $this->resolveStatuses($user, $occurrences, $start, $end);
-
-        return $statuses->map(fn (array $item) => [
-            'scheduled_at' => $item['scheduled_at']->toISOString(),
-            'status' => $item['status'],
-        ])->all();
+        return $this->resolveStatuses($user, $occurrences, $start, $end);
     }
 
     private function resolveRange(User $user, string $from, string $to): array
@@ -81,7 +48,7 @@ class IntakeDerivationService
             ->when($medicationId, fn ($q) => $q->where('medication_id', $medicationId))
             ->whereHas('medication', fn ($q) => $q->where('user_id', $user->id));
 
-        $schedules = $query->get();
+        $schedules = $query->with('medication')->get();
         $timezone = $user->timezone ?: 'UTC';
 
         $occurrences = collect();
@@ -126,7 +93,7 @@ class IntakeDerivationService
                 [$hour, $minute] = array_map('intval', explode(':', $time));
                 $scheduled = $date->copy()->setTime($hour, $minute, 0)->utc();
                 if ($scheduled->betweenIncluded($start, $end)) {
-                    $items->push(['schedule_id' => $schedule->id, 'scheduled_at' => $scheduled]);
+                    $items->push($this->buildOccurrence($schedule, $scheduled));
                 }
             }
         }
@@ -176,7 +143,7 @@ class IntakeDerivationService
                 [$hour, $minute] = array_map('intval', explode(':', $time));
                 $scheduled = $date->copy()->setTime($hour, $minute, 0)->utc();
                 if ($scheduled->betweenIncluded($start, $end)) {
-                    $items->push(['schedule_id' => $schedule->id, 'scheduled_at' => $scheduled]);
+                    $items->push($this->buildOccurrence($schedule, $scheduled));
                 }
             }
         }
@@ -187,7 +154,7 @@ class IntakeDerivationService
     private function intervalOccurrences(Schedule $schedule, Carbon $start, Carbon $end): Collection
     {
         $intervalHours = $schedule->interval_hours;
-        if ($intervalHours === null) {
+        if ($intervalHours === null || $intervalHours < 1) {
             return collect();
         }
 
@@ -196,7 +163,7 @@ class IntakeDerivationService
         $step = $intervalHours * 60;
 
         while ($cursor->lte($end)) {
-            $items->push(['schedule_id' => $schedule->id, 'scheduled_at' => $cursor->copy()]);
+            $items->push($this->buildOccurrence($schedule, $cursor->copy()));
             $cursor->addMinutes($step);
         }
 
@@ -254,9 +221,21 @@ class IntakeDerivationService
 
             return [
                 'schedule_id' => $scheduleId,
+                'medication_id' => $occurrence['medication_id'] ?? null,
+                'medication_name' => $occurrence['medication_name'] ?? null,
                 'scheduled_at' => $scheduledAt,
                 'status' => $status,
             ];
         });
+    }
+
+    private function buildOccurrence(Schedule $schedule, Carbon $scheduledAt): array
+    {
+        return [
+            'schedule_id' => $schedule->id,
+            'medication_id' => $schedule->medication_id,
+            'medication_name' => $schedule->medication?->name,
+            'scheduled_at' => $scheduledAt,
+        ];
     }
 }

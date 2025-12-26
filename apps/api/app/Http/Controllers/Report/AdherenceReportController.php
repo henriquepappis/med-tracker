@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Report\AdherenceMedicationBreakdownRequest;
+use App\Http\Requests\Report\AdherenceScheduleBreakdownRequest;
 use App\Http\Requests\Report\AdherenceSummaryRequest;
 use App\Http\Requests\Report\IntakeTimelineRequest;
 use App\Services\AdherenceReportService;
-use App\Services\IntakeDerivationService;
+use App\Services\ReportService;
 use Illuminate\Http\Request;
 
 class AdherenceReportController extends Controller
@@ -26,7 +28,7 @@ class AdherenceReportController extends Controller
         return response()->json($service->build($request->user(), 'monthly'));
     }
 
-    public function summary(AdherenceSummaryRequest $request, IntakeDerivationService $service)
+    public function summary(AdherenceSummaryRequest $request, ReportService $service)
     {
         $data = $request->validated();
 
@@ -39,7 +41,30 @@ class AdherenceReportController extends Controller
         ));
     }
 
-    public function timeline(IntakeTimelineRequest $request, IntakeDerivationService $service)
+    public function medicationBreakdown(AdherenceMedicationBreakdownRequest $request, ReportService $service)
+    {
+        $data = $request->validated();
+
+        return response()->json($service->medicationBreakdown(
+            $request->user(),
+            $data['from'],
+            $data['to']
+        ));
+    }
+
+    public function scheduleBreakdown(AdherenceScheduleBreakdownRequest $request, ReportService $service)
+    {
+        $data = $request->validated();
+
+        return response()->json($service->scheduleBreakdown(
+            $request->user(),
+            $data['from'],
+            $data['to'],
+            $data['medication_id'] ?? null
+        ));
+    }
+
+    public function timeline(IntakeTimelineRequest $request, ReportService $service)
     {
         $data = $request->validated();
 
@@ -47,7 +72,8 @@ class AdherenceReportController extends Controller
             $request->user(),
             $data['from'],
             $data['to'],
-            $data['schedule_id']
+            $data['medication_id'] ?? null,
+            $data['schedule_id'] ?? null
         ));
     }
 }
