@@ -97,4 +97,55 @@ class ScheduleTest extends TestCase
             ->assertJsonFragment(['id' => $active->id])
             ->assertJsonFragment(['id' => $inactive->id]);
     }
+
+    public function test_user_can_update_schedule(): void
+    {
+        $user = User::factory()->create();
+        $medication = $user->medications()->create([
+            'name' => 'Vitamin D',
+            'dosage' => '1 pill',
+            'instructions' => 'After breakfast',
+            'is_active' => true,
+        ]);
+        $schedule = $medication->schedules()->create([
+            'recurrence_type' => 'daily',
+            'times' => ['08:00'],
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user, 'sanctum');
+
+        $this->putJson("/api/schedules/{$schedule->id}", [
+            'times' => ['09:00'],
+        ])->assertStatus(200)
+            ->assertJsonFragment([
+                'recurrence_type' => 'daily',
+            ]);
+    }
+
+    public function test_user_can_deactivate_schedule(): void
+    {
+        $user = User::factory()->create();
+        $medication = $user->medications()->create([
+            'name' => 'Vitamin D',
+            'dosage' => '1 pill',
+            'instructions' => 'After breakfast',
+            'is_active' => true,
+        ]);
+        $schedule = $medication->schedules()->create([
+            'recurrence_type' => 'daily',
+            'times' => ['08:00'],
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user, 'sanctum');
+
+        $this->deleteJson("/api/schedules/{$schedule->id}")
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('schedules', [
+            'id' => $schedule->id,
+            'is_active' => false,
+        ]);
+    }
 }
