@@ -9,6 +9,10 @@ use App\Http\Controllers\User\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']));
+Route::get('/health/app', fn () => response()->json([
+    'status' => 'ok',
+    'app' => true,
+]));
 
 Route::prefix('auth')->controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
