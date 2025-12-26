@@ -28,6 +28,12 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/RegisterRequest"
+            examples:
+              default:
+                value:
+                  name: "Jane Doe"
+                  email: "jane@example.com"
+                  password: "secret123"
       responses:
         "201":
           description: Registered
@@ -35,6 +41,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TokenResponse"
+              examples:
+                default:
+                  value:
+                    token: "1|example_token"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /auth/login:
     post:
       summary: Login user
@@ -44,6 +56,11 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/LoginRequest"
+            examples:
+              default:
+                value:
+                  email: "jane@example.com"
+                  password: "secret123"
       responses:
         "200":
           description: Logged in
@@ -51,6 +68,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TokenResponse"
+              examples:
+                default:
+                  value:
+                    token: "1|example_token"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /auth/logout:
     post:
       summary: Logout user
@@ -59,6 +82,8 @@ paths:
       responses:
         "200":
           description: Logged out
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /user/profile:
     get:
       summary: Get user profile
@@ -71,6 +96,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
     put:
       summary: Update user profile
       security:
@@ -81,6 +108,11 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/UserProfileUpdateRequest"
+            examples:
+              default:
+                value:
+                  timezone: "America/Sao_Paulo"
+                  language: "pt-BR"
       responses:
         "200":
           description: Updated profile
@@ -88,6 +120,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+              examples:
+                default:
+                  value:
+                    id: 1
+                    name: "Jane Doe"
+                    email: "jane@example.com"
+                    timezone: "America/Sao_Paulo"
+                    language: "pt-BR"
+                    created_at: "2025-12-26T08:00:00Z"
+                    updated_at: "2025-12-26T08:00:00Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /medications:
     get:
       summary: List medications
@@ -104,6 +150,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Medication"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
     post:
       summary: Create medication
       security:
@@ -114,6 +162,13 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/MedicationCreateRequest"
+            examples:
+              default:
+                value:
+                  name: "Vitamin D"
+                  dosage: "1 pill"
+                  instructions: "After breakfast"
+                  is_active: true
       responses:
         "201":
           description: Created medication
@@ -121,6 +176,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Medication"
+              examples:
+                default:
+                  value:
+                    id: 10
+                    user_id: 1
+                    name: "Vitamin D"
+                    dosage: "1 pill"
+                    instructions: "After breakfast"
+                    is_active: true
+                    created_at: "2025-12-26T08:00:00Z"
+                    updated_at: "2025-12-26T08:00:00Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /medications/{medication}:
     get:
       summary: Get medication
@@ -135,8 +205,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Medication"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Not Found
+          $ref: "#/components/responses/NotFound"
     put:
       summary: Update medication
       security:
@@ -156,8 +228,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Medication"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Not Found
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
     delete:
       summary: Deactivate medication
       security:
@@ -167,8 +243,10 @@ paths:
       responses:
         "200":
           description: Deactivated medication
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Not Found
+          $ref: "#/components/responses/NotFound"
   /medications/{medication}/schedules:
     get:
       summary: List schedules for medication
@@ -186,6 +264,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Schedule"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /schedules:
     post:
       summary: Create schedule
@@ -197,6 +279,26 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/ScheduleCreateRequest"
+            examples:
+              daily:
+                value:
+                  medication_id: 10
+                  recurrence_type: "daily"
+                  times: ["08:00", "20:00"]
+                  is_active: true
+              weekly:
+                value:
+                  medication_id: 10
+                  recurrence_type: "weekly"
+                  times: ["09:00"]
+                  weekdays: ["mon", "wed", "fri"]
+                  is_active: true
+              interval:
+                value:
+                  medication_id: 10
+                  recurrence_type: "interval"
+                  interval_hours: 8
+                  is_active: true
       responses:
         "201":
           description: Created schedule
@@ -204,6 +306,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Schedule"
+              examples:
+                default:
+                  value:
+                    id: 100
+                    medication_id: 10
+                    recurrence_type: "daily"
+                    times: ["08:00", "20:00"]
+                    weekdays: null
+                    interval_hours: null
+                    is_active: true
+                    created_at: "2025-12-26T08:00:00Z"
+                    updated_at: "2025-12-26T08:00:00Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /schedules/{schedule}:
     get:
       summary: Get schedule
@@ -218,8 +336,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Schedule"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Not Found
+          $ref: "#/components/responses/NotFound"
     put:
       summary: Update schedule
       security:
@@ -239,8 +359,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Schedule"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Not Found
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
     delete:
       summary: Deactivate schedule
       security:
@@ -250,8 +374,10 @@ paths:
       responses:
         "200":
           description: Deactivated schedule
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
-          description: Not Found
+          $ref: "#/components/responses/NotFound"
   /intakes:
     get:
       summary: List intakes
@@ -266,6 +392,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Intake"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
     post:
       summary: Create intake
       security:
@@ -276,6 +404,17 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/IntakeCreateRequest"
+            examples:
+              taken:
+                value:
+                  schedule_id: 100
+                  status: "taken"
+                  taken_at: "2025-12-26T08:05:00Z"
+              skipped:
+                value:
+                  schedule_id: 100
+                  status: "skipped"
+                  taken_at: "2025-12-26T08:05:00Z"
       responses:
         "201":
           description: Created intake
@@ -283,6 +422,20 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Intake"
+              examples:
+                default:
+                  value:
+                    id: 500
+                    schedule_id: 100
+                    medication_id: 10
+                    user_id: 1
+                    status: "taken"
+                    taken_at: "2025-12-26T08:05:00Z"
+                    created_at: "2025-12-26T08:05:00Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /reports/adherence/daily:
     get:
       summary: Daily adherence report
@@ -295,6 +448,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdherenceReport"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /reports/adherence:
     get:
       summary: Adherence summary
@@ -330,6 +485,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdherenceSummary"
+              examples:
+                default:
+                  value:
+                    period:
+                      from: "2025-12-26T00:00:00Z"
+                      to: "2025-12-26T23:59:59Z"
+                    summary:
+                      expected: 2
+                      taken: 1
+                      skipped: 0
+                      missed: 1
+                      adherence_rate: 0.5
+                    by_medication:
+                      - medication_id: 10
+                        medication_name: "Vitamin D"
+                        expected: 2
+                        taken: 1
+                        skipped: 0
+                        missed: 1
+                        adherence_rate: 0.5
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /reports/adherence/medications:
     get:
       summary: Medication adherence breakdown
@@ -357,6 +536,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AdherenceMedicationBreakdown"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /reports/adherence/schedules:
     get:
       summary: Schedule adherence breakdown
@@ -389,6 +572,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AdherenceScheduleBreakdown"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /reports/adherence/weekly:
     get:
       summary: Weekly adherence report
@@ -401,6 +588,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdherenceReport"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /reports/adherence/monthly:
     get:
       summary: Monthly adherence report
@@ -413,6 +602,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdherenceReport"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /reports/intake-timeline:
     get:
       summary: Intake timeline
@@ -450,6 +641,17 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/IntakeTimelineItem"
+              examples:
+                default:
+                  value:
+                    - scheduled_at: "2025-12-26T08:00:00Z"
+                      status: "missed"
+                      medication_id: 10
+                      schedule_id: 100
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
 components:
   securitySchemes:
     bearerAuth:
@@ -474,7 +676,59 @@ components:
       required: false
       schema:
         type: boolean
+  responses:
+    Unauthorized:
+      description: Unauthenticated
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: "Unauthenticated."
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: "Not Found."
+    ValidationError:
+      description: Validation Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationErrorResponse"
+          example:
+            message: "Validation failed."
+            errors:
+              email:
+                - "The email field is required."
+    ServerError:
+      description: Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: "Server Error."
   schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    ValidationErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
     TokenResponse:
       type: object
       properties:
@@ -787,35 +1041,61 @@ components:
         missed: 0
         adherence: 0.5
     AdherenceSummary:
-      type: object
-      properties:
-        period:
-          type: object
+      oneOf:
+        - type: object
           properties:
-            from:
-              type: string
-              format: date-time
-            to:
-              type: string
-              format: date-time
-        summary:
-          type: object
+            period:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: date-time
+                to:
+                  type: string
+                  format: date-time
+            summary:
+              type: object
+              properties:
+                expected:
+                  type: integer
+                taken:
+                  type: integer
+                skipped:
+                  type: integer
+                missed:
+                  type: integer
+                adherence_rate:
+                  type: number
+                  format: float
+        - type: object
           properties:
-            expected:
-              type: integer
-            taken:
-              type: integer
-            skipped:
-              type: integer
-            missed:
-              type: integer
-            adherence_rate:
-              type: number
-              format: float
-        by_medication:
-          type: array
-          items:
-            $ref: "#/components/schemas/AdherenceMedicationBreakdown"
+            period:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: date-time
+                to:
+                  type: string
+                  format: date-time
+            summary:
+              type: object
+              properties:
+                expected:
+                  type: integer
+                taken:
+                  type: integer
+                skipped:
+                  type: integer
+                missed:
+                  type: integer
+                adherence_rate:
+                  type: number
+                  format: float
+            by_medication:
+              type: array
+              items:
+                $ref: "#/components/schemas/AdherenceMedicationBreakdown"
       example:
         period:
           from: "2025-12-26T00:00:00Z"
