@@ -63,12 +63,14 @@ class StoreScheduleRequest extends FormRequest
     {
         if (! is_array($times) || count($times) === 0) {
             $validator->errors()->add('payload.times', 'Times must be a non-empty array.');
+
             return;
         }
 
         foreach ($times as $time) {
             if (! is_string($time) || ! preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $time)) {
                 $validator->errors()->add('payload.times', 'Each time must be in HH:MM format.');
+
                 return;
             }
         }
@@ -78,12 +80,14 @@ class StoreScheduleRequest extends FormRequest
     {
         if (! is_array($days) || count($days) === 0) {
             $validator->errors()->add('payload.days', 'Days must be a non-empty array.');
+
             return;
         }
 
         foreach ($days as $day) {
             if (! is_int($day) || $day < 1 || $day > 7) {
                 $validator->errors()->add('payload.days', 'Each day must be an integer between 1 and 7.');
+
                 return;
             }
         }
@@ -95,6 +99,7 @@ class StoreScheduleRequest extends FormRequest
 
         if (! is_int($everyMinutes) || $everyMinutes < 15) {
             $validator->errors()->add('payload.every_minutes', 'Every minutes must be an integer of at least 15.');
+
             return;
         }
 
