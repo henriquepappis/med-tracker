@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Intake\IntakeController;
 use App\Http\Controllers\Medication\MedicationController;
+use App\Http\Controllers\Report\AdherenceReportController;
 use App\Http\Controllers\Schedule\ScheduleController;
 use App\Http\Controllers\User\UserProfileController;
 use Illuminate\Support\Facades\Route;
@@ -41,4 +42,10 @@ Route::middleware('auth:sanctum')->prefix('schedules')->group(function () {
 Route::middleware('auth:sanctum')->prefix('intakes')->group(function () {
     Route::get('/', [IntakeController::class, 'index']);
     Route::post('/', [IntakeController::class, 'store']);
+});
+
+Route::middleware('auth:sanctum')->prefix('reports/adherence')->group(function () {
+    Route::get('/daily', [AdherenceReportController::class, 'daily']);
+    Route::get('/weekly', [AdherenceReportController::class, 'weekly']);
+    Route::get('/monthly', [AdherenceReportController::class, 'monthly']);
 });
