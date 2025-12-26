@@ -93,6 +93,70 @@ Diagrams
 --------
 High-level flow diagrams and sequence diagrams may be added using Mermaid when useful, but diagrams are supplementary and not mandatory.
 
+### High-Level Architecture
+```mermaid
+flowchart LR
+  subgraph Clients
+    Mobile[React Native App]
+  end
+
+  subgraph API["Laravel API (apps/api)"]
+    Auth[Auth + Sanctum]
+    Domain[Medication, Schedule, Intake]
+    Reports[Reporting Services]
+  end
+
+  subgraph Data["PostgreSQL"]
+    DB[(Database)]
+  end
+
+  Mobile -->|REST + JSON| Auth
+  Mobile -->|REST + JSON| Domain
+  Mobile -->|REST + JSON| Reports
+  Auth --> DB
+  Domain --> DB
+  Reports --> DB
+```
+
+### Authentication Flow
+```mermaid
+sequenceDiagram
+  participant Client
+  participant API
+  participant DB
+
+  Client->>API: POST /auth/register
+  API->>DB: Create user
+  DB-->>API: User record
+  API-->>Client: Token response
+
+  Client->>API: POST /auth/login
+  API->>DB: Validate credentials
+  DB-->>API: User record
+  API-->>Client: Token response
+
+  Client->>API: GET /user/profile (auth:sanctum)
+  API->>DB: Fetch user profile
+  DB-->>API: Profile data
+  API-->>Client: Profile JSON
+```
+
+### Schedule → Intake Derivation Flow
+```mermaid
+sequenceDiagram
+  participant Client
+  participant API
+  participant Deriver as IntakeDerivationService
+  participant DB
+
+  Client->>API: GET /reports/intake-timeline
+  API->>Deriver: deriveStatuses(user, range, filters)
+  Deriver->>DB: Load schedules + intakes
+  DB-->>Deriver: Schedules + Intakes
+  Deriver-->>API: Derived occurrences (status)
+  API-->>Client: Timeline JSON
+```
+
 Status
 ------
 This document defines the **current authoritative architecture** of the system and must be updated if core decisions change.
