@@ -62,11 +62,11 @@ Status: ✅ Completed
 
 ### AUTH-2 — Authorization Policies
 
-* MedicationPolicy
-* SchedulePolicy
-* IntakePolicy
+* MedicationPolicy ✅
+* SchedulePolicy ✅
+* IntakePolicy ✅
   Goal: centralize ownership rules
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
@@ -75,7 +75,7 @@ Status: ✅ Completed
 * Unified validation responses
 * JSON-only errors
 * No HTML leaks
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
@@ -93,7 +93,7 @@ Status: ✅ Completed
 
 * Logical deletion
 * Filtering inactive medications by default
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
@@ -101,7 +101,7 @@ Status: ✅ Completed
 
 * Feature tests
 * Ownership scenarios
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
@@ -116,7 +116,7 @@ Status: ✅ Completed
   * Weekly
   * Interval-based
 * Logical deletion
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
@@ -124,7 +124,7 @@ Status: ✅ Completed
 
 * Overlapping schedule prevention
 * Recurrence integrity checks
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
@@ -285,7 +285,7 @@ Status: ✅ Completed
 * Lint
 * Tests
 * PR enforcement
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
@@ -303,7 +303,8 @@ Status: ✅ Completed
 ### DOC-1 — API Documentation
 
 * OpenAPI / Swagger
-  Status: ⏳ Planned
+  Notes: OpenAPI spec exists; Swagger UI setup pending
+  Status: 🚧 In progress
 
 ---
 
@@ -318,14 +319,14 @@ Status: ✅ Completed
 ### ADR-1 — Localization Strategy
 
 * Manual → AI-assisted scaling
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
 ### ADR-2 — Notification Strategy
 
 * Local vs server-driven
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
