@@ -22,7 +22,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          coverage: none
+          coverage: pcov
           extensions: mbstring, sqlite3, pdo_sqlite
 
       - name: Install dependencies
@@ -41,3 +41,14 @@ jobs:
 
       - name: PHPUnit
         run: composer test
+
+      - name: Coverage
+        run: |
+          mkdir -p build/logs
+          composer test:coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: apps/api/build/logs/coverage.xml
