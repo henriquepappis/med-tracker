@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Medication\MedicationController;
 use App\Http\Controllers\Schedule\ScheduleController;
 use App\Http\Controllers\User\UserProfileController;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/health', fn() => response()->json(['status' => 'ok']));
+Route::get('/health', fn () => response()->json(['status' => 'ok']));
 
 Route::prefix('auth')->controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');

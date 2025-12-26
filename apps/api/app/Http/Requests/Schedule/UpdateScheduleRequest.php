@@ -32,7 +32,7 @@ class UpdateScheduleRequest extends FormRequest
             $payloadProvided = $this->has('payload');
             $typeProvided = $this->has('type');
 
-            if (! $payloadProvided && ! $typeProvided) {
+            if (!$payloadProvided && !$typeProvided) {
                 return;
             }
 
@@ -43,20 +43,20 @@ class UpdateScheduleRequest extends FormRequest
 
             $payload = $this->input('payload');
 
-            if (! is_array($payload)) {
+            if (!is_array($payload)) {
                 return;
             }
 
             $type = $this->input('type');
 
-            if (! $type) {
+            if (!$type) {
                 $schedule = $this->route('schedule');
                 if ($schedule instanceof Schedule) {
                     $type = $schedule->type;
                 }
             }
 
-            if (! $type) {
+            if (!$type) {
                 return;
             }
 
@@ -82,13 +82,13 @@ class UpdateScheduleRequest extends FormRequest
 
     private function validateTimes($validator, $times): void
     {
-        if (! is_array($times) || count($times) === 0) {
+        if (!is_array($times) || count($times) === 0) {
             $validator->errors()->add('payload.times', 'Times must be a non-empty array.');
             return;
         }
 
         foreach ($times as $time) {
-            if (! is_string($time) || ! preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $time)) {
+            if (!is_string($time) || !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $time)) {
                 $validator->errors()->add('payload.times', 'Each time must be in HH:MM format.');
                 return;
             }
@@ -97,13 +97,13 @@ class UpdateScheduleRequest extends FormRequest
 
     private function validateDays($validator, $days): void
     {
-        if (! is_array($days) || count($days) === 0) {
+        if (!is_array($days) || count($days) === 0) {
             $validator->errors()->add('payload.days', 'Days must be a non-empty array.');
             return;
         }
 
         foreach ($days as $day) {
-            if (! is_int($day) || $day < 1 || $day > 7) {
+            if (!is_int($day) || $day < 1 || $day > 7) {
                 $validator->errors()->add('payload.days', 'Each day must be an integer between 1 and 7.');
                 return;
             }
@@ -114,7 +114,7 @@ class UpdateScheduleRequest extends FormRequest
     {
         $everyMinutes = $payload['every_minutes'] ?? null;
 
-        if (! is_int($everyMinutes) || $everyMinutes < 15) {
+        if (!is_int($everyMinutes) || $everyMinutes < 15) {
             $validator->errors()->add('payload.every_minutes', 'Every minutes must be an integer of at least 15.');
             return;
         }
@@ -122,7 +122,7 @@ class UpdateScheduleRequest extends FormRequest
         if (array_key_exists('anchor_time', $payload) && $payload['anchor_time'] !== null) {
             $anchorTime = $payload['anchor_time'];
 
-            if (! is_string($anchorTime) || ! preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $anchorTime)) {
+            if (!is_string($anchorTime) || !preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $anchorTime)) {
                 $validator->errors()->add('payload.anchor_time', 'Anchor time must be in HH:MM format.');
             }
         }
