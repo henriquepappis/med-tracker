@@ -41,8 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    if (token) {
-      await api.post('/auth/logout', undefined, token);
+    try {
+      if (token) {
+        await api.post('/auth/logout', undefined, token);
+      }
+    } catch {
+      // Ignore server/network errors on logout; always clear local session.
     }
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     setToken(null);
