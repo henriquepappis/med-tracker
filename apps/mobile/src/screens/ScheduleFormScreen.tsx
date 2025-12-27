@@ -13,6 +13,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import type { AppStackParamList } from '../navigation/types';
+import { isRemindersEnabled, syncNotifications } from '../services/notifications';
 
 const weekdays = [
   { key: 'mon', label: 'Mon' },
@@ -136,6 +137,13 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
 
     try {
       await api.post('/schedules', payload, token);
+      if (await isRemindersEnabled()) {
+        try {
+          await syncNotifications(token);
+        } catch {
+          // Ignore reminder sync errors during schedule creation.
+        }
+      }
       navigation.goBack();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create schedule');
