@@ -14,6 +14,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import type { AppStackParamList, Schedule } from '../navigation/types';
+import {
+  disableNotifications,
+  isRemindersEnabled,
+  setRemindersEnabled,
+  syncNotifications,
+  remindersPlatformNote,
+} from '../services/notifications';
 
 const weekdayLabels: Record<string, string> = {
   mon: 'Mon',
@@ -34,10 +41,21 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [remindersEnabled, setRemindersEnabledState] = useState(false);
+  const [remindersBusy, setRemindersBusy] = useState(false);
+  const [remindersError, setRemindersError] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: `${medication.name} schedules` });
   }, [navigation, medication.name]);
+
+  useLayoutEffect(() => {
+    const loadReminders = async () => {
+      const enabled = await isRemindersEnabled();
+      setRemindersEnabledState(enabled);
+    };
+    loadReminders();
+  }, []);
 
   const load = useCallback(async () => {
     if (!token) {
@@ -70,6 +88,29 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
     setRefreshing(true);
     void load();
   }, [load]);
+
+  const handleToggleReminders = useCallback(async () => {
+    if (!token) {
+      return;
+    }
+    setRemindersBusy(true);
+    setRemindersError(null);
+    try {
+      if (remindersEnabled) {
+        await disableNotifications();
+        await setRemindersEnabled(false);
+        setRemindersEnabledState(false);
+      } else {
+        await syncNotifications(token);
+        await setRemindersEnabled(true);
+        setRemindersEnabledState(true);
+      }
+    } catch (err) {
+      setRemindersError(err instanceof Error ? err.message : 'Failed to update reminders');
+    } finally {
+      setRemindersBusy(false);
+    }
+  }, [token, remindersEnabled]);
 
   const handleDeactivate = useCallback(
     (item: Schedule) => {
@@ -125,6 +166,27 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   return (
     <View style={styles.container}>
       {error ? <Text style={styles.error}>{error}</Text> : null}
+      {remindersError ? <Text style={styles.error}>{remindersError}</Text> : null}
+
+      <View style={styles.reminderCard}>
+        <View style={styles.reminderRow}>
+          <View>
+            <Text style={styles.reminderTitle}>Reminders</Text>
+            <Text style={styles.reminderNote}>{remindersPlatformNote}</Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.secondaryButton, remindersEnabled && styles.secondaryButtonActive]}
+            onPress={handleToggleReminders}
+            disabled={remindersBusy}
+          >
+            <Text
+              style={[styles.secondaryButtonText, remindersEnabled && styles.secondaryButtonTextActive]}
+            >
+              {remindersEnabled ? 'Disable' : 'Enable'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {items.length === 0 ? (
         <View style={styles.empty}>
@@ -194,6 +256,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#6a6660',
   },
+  reminderCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+  },
+  reminderTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  reminderNote: {
+    color: '#7d7a75',
+    marginTop: 4,
+    fontSize: 12,
+  },
   cardSubtitle: {
     marginTop: 6,
     fontSize: 16,
@@ -210,6 +293,23 @@ const styles = StyleSheet.create({
   dangerButtonText: {
     color: '#fff',
     fontWeight: '600',
+  },
+  secondaryButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#1b1b1b',
+  },
+  secondaryButtonActive: {
+    backgroundColor: '#1b1b1b',
+  },
+  secondaryButtonText: {
+    color: '#1b1b1b',
+    fontWeight: '600',
+  },
+  secondaryButtonTextActive: {
+    color: '#fff',
   },
   fab: {
     position: 'absolute',

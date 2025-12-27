@@ -229,7 +229,7 @@ Status: ✅ Completed
   * Taken
   * Skip
   * Postpone
-    Status: ⏳ Planned
+    Status: ✅ Completed
 
 ---
 
