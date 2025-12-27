@@ -16,10 +16,12 @@ import { useAuth } from '../auth/AuthContext';
 import type { AppStackParamList, Schedule } from '../navigation/types';
 import {
   disableNotifications,
+  getNotificationDebugInfo,
   isRemindersEnabled,
   setRemindersEnabled,
   syncNotifications,
   remindersPlatformNote,
+  type NotificationDebugInfo,
 } from '../services/notifications';
 
 const weekdayLabels: Record<string, string> = {
@@ -44,6 +46,9 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   const [remindersEnabled, setRemindersEnabledState] = useState(false);
   const [remindersBusy, setRemindersBusy] = useState(false);
   const [remindersError, setRemindersError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<NotificationDebugInfo | null>(null);
+  const [debugLoading, setDebugLoading] = useState(false);
+  const [debugError, setDebugError] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: `${medication.name} schedules` });
@@ -53,9 +58,21 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
     const loadReminders = async () => {
       const enabled = await isRemindersEnabled();
       setRemindersEnabledState(enabled);
+      if (token) {
+        setDebugLoading(true);
+        setDebugError(null);
+        try {
+          const info = await getNotificationDebugInfo(token);
+          setDebugInfo(info);
+        } catch (err) {
+          setDebugError(err instanceof Error ? err.message : 'Failed to load notification debug info');
+        } finally {
+          setDebugLoading(false);
+        }
+      }
     };
     loadReminders();
-  }, []);
+  }, [token]);
 
   const load = useCallback(async () => {
     if (!token) {
@@ -105,12 +122,30 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
         await setRemindersEnabled(true);
         setRemindersEnabledState(true);
       }
+      const info = await getNotificationDebugInfo(token);
+      setDebugInfo(info);
     } catch (err) {
       setRemindersError(err instanceof Error ? err.message : 'Failed to update reminders');
     } finally {
       setRemindersBusy(false);
     }
   }, [token, remindersEnabled]);
+
+  const handleRefreshDebug = useCallback(async () => {
+    if (!token) {
+      return;
+    }
+    setDebugLoading(true);
+    setDebugError(null);
+    try {
+      const info = await getNotificationDebugInfo(token);
+      setDebugInfo(info);
+    } catch (err) {
+      setDebugError(err instanceof Error ? err.message : 'Failed to load notification debug info');
+    } finally {
+      setDebugLoading(false);
+    }
+  }, [token]);
 
   const handleDeactivate = useCallback(
     (item: Schedule) => {
@@ -167,6 +202,7 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
     <View style={styles.container}>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {remindersError ? <Text style={styles.error}>{remindersError}</Text> : null}
+      {debugError ? <Text style={styles.error}>{debugError}</Text> : null}
 
       <View style={styles.reminderCard}>
         <View style={styles.reminderRow}>
@@ -186,6 +222,27 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
             </Text>
           </TouchableOpacity>
         </View>
+        {debugInfo ? (
+          <View style={styles.debugBlock}>
+            <Text style={styles.debugText}>
+              Enabled: {debugInfo.enabled ? 'yes' : 'no'} · Permission: {debugInfo.permissionGranted ? 'granted' : 'denied'} {debugInfo.permissionStatus ? `(status ${debugInfo.permissionStatus})` : ''}
+            </Text>
+            <Text style={styles.debugText}>Timezone: {debugInfo.timezone ?? 'not set'}</Text>
+            <Text style={styles.debugText}>Scheduled notifications: {debugInfo.scheduledCount}</Text>
+            {debugInfo.scheduledTimes.length > 0 ? (
+              debugInfo.scheduledTimes.map((time) => (
+                <Text key={time} style={styles.debugText}>
+                  - {time}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.debugText}>No upcoming notifications.</Text>
+            )}
+          </View>
+        ) : null}
+        <TouchableOpacity style={styles.debugButton} onPress={handleRefreshDebug} disabled={debugLoading}>
+          <Text style={styles.debugButtonText}>{debugLoading ? 'Refreshing…' : 'Refresh debug'}</Text>
+        </TouchableOpacity>
       </View>
 
       {items.length === 0 ? (
@@ -275,6 +332,28 @@ const styles = StyleSheet.create({
   reminderNote: {
     color: '#7d7a75',
     marginTop: 4,
+    fontSize: 12,
+  },
+  debugBlock: {
+    marginTop: 12,
+  },
+  debugText: {
+    color: '#4a4742',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  debugButton: {
+    marginTop: 12,
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#1b1b1b',
+  },
+  debugButtonText: {
+    color: '#1b1b1b',
+    fontWeight: '600',
     fontSize: 12,
   },
   cardSubtitle: {

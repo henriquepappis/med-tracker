@@ -12,7 +12,6 @@ const POSTPONE_MINUTES = 30;
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
     shouldShowBanner: true,
@@ -29,6 +28,15 @@ type ScheduleWithMedication = {
 
 type UserProfile = {
   timezone?: string | null;
+};
+
+export type NotificationDebugInfo = {
+  enabled: boolean;
+  permissionGranted: boolean;
+  permissionStatus?: string;
+  timezone: string | null;
+  scheduledCount: number;
+  scheduledTimes: string[];
 };
 
 export async function isRemindersEnabled(): Promise<boolean> {
@@ -326,3 +334,49 @@ export const remindersPlatformNote = Platform.select({
   android: 'Reminders follow your profile timezone.',
   default: 'Reminders follow your profile timezone.',
 });
+
+function formatScheduledTrigger(trigger: Notifications.NotificationTrigger | null): string | null {
+  if (!trigger || typeof trigger !== 'object') {
+    return null;
+  }
+  if ('date' in trigger) {
+    const dateValue = trigger.date;
+    const date =
+      dateValue instanceof Date
+        ? dateValue
+        : typeof dateValue === 'number'
+          ? new Date(dateValue)
+          : new Date(dateValue as string);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    return date.toISOString();
+  }
+  return null;
+}
+
+export async function getNotificationDebugInfo(token: string): Promise<NotificationDebugInfo> {
+  const [enabled, permissions, scheduled, timezone] = await Promise.all([
+    isRemindersEnabled(),
+    Notifications.getPermissionsAsync(),
+    Notifications.getAllScheduledNotificationsAsync(),
+    fetchTimezone(token),
+  ]);
+
+  const scheduledTimes = scheduled
+    .map((item) => formatScheduledTrigger(item.trigger))
+    .filter((value): value is string => Boolean(value))
+    .sort()
+    .slice(0, 5);
+
+  const permissionStatus = permissions.ios?.status ?? permissions.status;
+
+  return {
+    enabled,
+    permissionGranted: permissions.granted || permissions.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL,
+    permissionStatus: permissionStatus !== undefined ? String(permissionStatus) : undefined,
+    timezone,
+    scheduledCount: scheduled.length,
+    scheduledTimes,
+  };
+}
