@@ -9,23 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
-
-type Medication = {
-  id: number;
-  name: string;
-  dosage: string;
-  instructions?: string | null;
-  is_active: boolean;
-};
-
-type AppStackParamList = {
-  Medications: undefined;
-  MedicationForm: { medication?: Medication };
-};
+import type { AppStackParamList, Medication } from '../navigation/types';
 
 type Navigation = NativeStackNavigationProp<AppStackParamList>;
 
@@ -46,12 +35,16 @@ export default function MedicationListScreen() {
       const data = await api.get<Medication[]>('/medications', token);
       setItems(data);
     } catch (err) {
+      if (err instanceof Error && 'status' in err && (err as Error & { status?: number }).status === 401) {
+        await logout();
+        return;
+      }
       setError(err instanceof Error ? err.message : 'Failed to load medications');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [token]);
+  }, [token, logout]);
 
   useFocusEffect(
     useCallback(() => {
@@ -98,7 +91,7 @@ export default function MedicationListScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Medications</Text>
         <TouchableOpacity onPress={logout}>
@@ -127,6 +120,12 @@ export default function MedicationListScreen() {
               <View style={styles.actions}>
                 <TouchableOpacity
                   style={styles.secondaryButton}
+                  onPress={() => navigation.navigate('Schedules', { medication: item })}
+                >
+                  <Text style={styles.secondaryButtonText}>Schedules</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.secondaryButton}
                   onPress={() => navigation.navigate('MedicationForm', { medication: item })}
                 >
                   <Text style={styles.secondaryButtonText}>Edit</Text>
@@ -149,7 +148,7 @@ export default function MedicationListScreen() {
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -212,6 +211,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 12,
     gap: 12,
+    flexWrap: 'wrap',
   },
   secondaryButton: {
     paddingVertical: 8,

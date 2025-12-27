@@ -3,18 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
-
-type Medication = {
-  id: number;
-  name: string;
-  dosage: string;
-  instructions?: string | null;
-};
-
-type AppStackParamList = {
-  Medications: undefined;
-  MedicationForm: { medication?: Medication };
-};
+import type { AppStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MedicationForm'>;
 

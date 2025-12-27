@@ -217,7 +217,7 @@ Status: ✅ Completed
 * Schedule creation
 * Recurrence selection
 * Time pickers
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
