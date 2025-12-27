@@ -94,9 +94,14 @@ export default function MedicationListScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Medications</Text>
-        <TouchableOpacity onPress={logout}>
-          <Text style={styles.link}>Logout</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity onPress={() => navigation.navigate('Intakes')}>
+            <Text style={styles.link}>Intakes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={logout}>
+            <Text style={styles.link}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -168,6 +173,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 16,
   },
   title: {
     fontSize: 24,

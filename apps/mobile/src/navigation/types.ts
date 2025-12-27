@@ -16,9 +16,18 @@ export type Schedule = {
   is_active: boolean;
 };
 
+export type Intake = {
+  id: number;
+  schedule_id: number;
+  medication_id: number;
+  status: 'taken' | 'skipped';
+  taken_at: string;
+};
+
 export type AppStackParamList = {
   Medications: undefined;
   MedicationForm: { medication?: Medication };
   Schedules: { medication: Medication };
   ScheduleForm: { medication: Medication };
+  Intakes: undefined;
 };
