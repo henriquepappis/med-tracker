@@ -1,9 +1,19 @@
 import { useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
+import OfflineBanner from '../components/OfflineBanner';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import type { AppStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'MedicationForm'>;
@@ -11,6 +21,7 @@ type Props = NativeStackScreenProps<AppStackParamList, 'MedicationForm'>;
 export default function MedicationFormScreen({ navigation, route }: Props) {
   const { token } = useAuth();
   const { t } = useTranslation();
+  const { isOffline } = useNetworkStatus();
   const editing = route.params?.medication;
   const [name, setName] = useState(editing?.name ?? '');
   const [dosage, setDosage] = useState(editing?.dosage ?? '');
@@ -26,6 +37,10 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
 
   const handleSubmit = async () => {
     if (!token) {
+      return;
+    }
+    if (isOffline) {
+      Alert.alert(t('offline.readOnlyTitle'), t('offline.readOnlyMessage'));
       return;
     }
     setLoading(true);
@@ -46,6 +61,7 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
+      <OfflineBanner isOffline={isOffline} />
       <TextInput
         style={styles.input}
         placeholder={t('medications.namePlaceholder')}
@@ -66,7 +82,11 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
         multiline
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
+      <TouchableOpacity
+        style={[styles.button, (loading || isOffline) && styles.buttonDisabled]}
+        onPress={handleSubmit}
+        disabled={loading || isOffline}
+      >
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('common.save')}</Text>}
       </TouchableOpacity>
     </View>
@@ -96,6 +116,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#1b1b1b',
     alignItems: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: '#fff',

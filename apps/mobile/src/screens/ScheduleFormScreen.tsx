@@ -1,6 +1,7 @@
 import { useLayoutEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Platform,
   StyleSheet,
   Text,
@@ -13,6 +14,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
+import OfflineBanner from '../components/OfflineBanner';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import type { AppStackParamList } from '../navigation/types';
 import { isRemindersEnabled, syncNotifications } from '../services/notifications';
 
@@ -33,6 +36,7 @@ type RecurrenceType = 'daily' | 'weekly' | 'interval';
 export default function ScheduleFormScreen({ navigation, route }: Props) {
   const { token } = useAuth();
   const { t } = useTranslation();
+  const { isOffline } = useNetworkStatus();
   const { medication } = route.params;
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('daily');
   const [times, setTimes] = useState<string[]>([]);
@@ -115,6 +119,10 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
     if (!token) {
       return;
     }
+    if (isOffline) {
+      Alert.alert(t('offline.readOnlyTitle'), t('offline.readOnlyMessage'));
+      return;
+    }
     const validationError = validate();
     if (validationError) {
       setError(validationError);
@@ -156,6 +164,7 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
+      <OfflineBanner isOffline={isOffline} />
       <Text style={styles.label}>{t('schedules.medication')}</Text>
       <Text style={styles.value}>{medication.name}</Text>
 
@@ -248,7 +257,11 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <TouchableOpacity style={styles.primaryButton} onPress={handleSubmit} disabled={loading}>
+      <TouchableOpacity
+        style={[styles.primaryButton, (loading || isOffline) && styles.primaryButtonDisabled]}
+        onPress={handleSubmit}
+        disabled={loading || isOffline}
+      >
         {loading ? <ActivityIndicator color="#fff" /> : (
           <Text style={styles.primaryButtonText}>{t('schedules.saveSchedule')}</Text>
         )}
@@ -389,6 +402,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#1b1b1b',
     alignItems: 'center',
     marginTop: 8,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
   },
   primaryButtonText: {
     color: '#fff',

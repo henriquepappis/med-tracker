@@ -13,6 +13,13 @@
     "notAvailable": "Not available",
     "noUpcomingNotifications": "No upcoming notifications."
   },
+  "offline": {
+    "title": "Offline mode",
+    "lastUpdated": "Last updated: {{time}}",
+    "readOnlyTitle": "Offline",
+    "readOnlyMessage": "You are offline. Actions are disabled.",
+    "noCache": "No cached data available."
+  },
   "navigation": {
     "medications": "Medications",
     "intakes": "Intakes",

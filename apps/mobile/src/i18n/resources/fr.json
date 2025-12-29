@@ -13,6 +13,13 @@
     "notAvailable": "Non disponible",
     "noUpcomingNotifications": "Aucune notification à venir."
   },
+  "offline": {
+    "title": "Mode hors ligne",
+    "lastUpdated": "Dernière mise à jour : {{time}}",
+    "readOnlyTitle": "Hors ligne",
+    "readOnlyMessage": "Vous êtes hors ligne. Les actions sont désactivées.",
+    "noCache": "Aucune donnée en cache."
+  },
   "navigation": {
     "medications": "Médicaments",
     "intakes": "Prises",

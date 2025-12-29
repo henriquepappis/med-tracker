@@ -266,7 +266,7 @@ Status: ✅ Completed
 
 * Cached data
 * Graceful offline UI
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 

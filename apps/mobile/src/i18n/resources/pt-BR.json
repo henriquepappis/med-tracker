@@ -13,6 +13,13 @@
     "notAvailable": "Não disponível",
     "noUpcomingNotifications": "Sem notificações futuras."
   },
+  "offline": {
+    "title": "Modo offline",
+    "lastUpdated": "Última atualização: {{time}}",
+    "readOnlyTitle": "Offline",
+    "readOnlyMessage": "Você está offline. As ações estão desativadas.",
+    "noCache": "Sem dados em cache."
+  },
   "navigation": {
     "medications": "Medicamentos",
     "intakes": "Ingestões",

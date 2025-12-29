@@ -1,6 +1,7 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -12,6 +13,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
+import OfflineBanner from '../components/OfflineBanner';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { cacheGet, cacheSet } from '../services/offlineCache';
 import type { AppStackParamList, Intake, Medication, Schedule } from '../navigation/types';
 
 const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -69,6 +73,7 @@ type Range = 7 | 30;
 export default function IntakeScreen({ navigation }: Props) {
   const { token, logout } = useAuth();
   const { t } = useTranslation();
+  const { isOffline } = useNetworkStatus();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('today');
@@ -76,13 +81,44 @@ export default function IntakeScreen({ navigation }: Props) {
   const [intakes, setIntakes] = useState<Intake[]>([]);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: t('intakes.title') });
   }, [navigation, t]);
 
+  const handleReadOnly = useCallback(() => {
+    Alert.alert(t('offline.readOnlyTitle'), t('offline.readOnlyMessage'));
+  }, [t]);
+
+  const loadFromCache = useCallback(async () => {
+    const medsCache = await cacheGet<Medication[]>('medications');
+    if (!medsCache) {
+      setError(t('offline.noCache'));
+      setLoading(false);
+      return;
+    }
+    const schedulesLists = await Promise.all(
+      medsCache.data.map(async (med) => {
+        const cached = await cacheGet<Schedule[]>(`schedules:${med.id}`);
+        return cached?.data ?? [];
+      })
+    );
+    const flatSchedules = schedulesLists.flat().filter((schedule) => schedule.is_active);
+    setMedications(medsCache.data);
+    setSchedules(flatSchedules);
+    setIntakes([]);
+    setLastUpdated(medsCache.updatedAt);
+    setError(null);
+    setLoading(false);
+  }, [t]);
+
   const load = useCallback(async () => {
     if (!token) {
+      return;
+    }
+    if (isOffline) {
+      await loadFromCache();
       return;
     }
     setError(null);
@@ -97,16 +133,26 @@ export default function IntakeScreen({ navigation }: Props) {
       setMedications(meds);
       setSchedules(flatSchedules);
       setIntakes(intakeList);
+      const cached = await cacheSet('medications', meds);
+      setLastUpdated(cached.updatedAt);
+      await Promise.all(
+        meds.map((med, index) => cacheSet(`schedules:${med.id}`, scheduleLists[index] ?? []))
+      );
     } catch (err) {
       if (err instanceof Error && 'status' in err && (err as Error & { status?: number }).status === 401) {
         await logout();
         return;
       }
-      setError(err instanceof Error ? err.message : t('errors.loadIntakes'));
+      const status = err instanceof Error && 'status' in err ? (err as Error & { status?: number }).status : null;
+      if (!status) {
+        await loadFromCache();
+      } else {
+        setError(err instanceof Error ? err.message : t('errors.loadIntakes'));
+      }
     } finally {
       setLoading(false);
     }
-  }, [token, logout, t]);
+  }, [token, isOffline, loadFromCache, logout, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -159,6 +205,10 @@ export default function IntakeScreen({ navigation }: Props) {
     if (!token) {
       return;
     }
+    if (isOffline) {
+      handleReadOnly();
+      return;
+    }
 
     try {
       await api.post(
@@ -195,6 +245,8 @@ export default function IntakeScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       {error ? <Text style={styles.error}>{error}</Text> : null}
+
+      <OfflineBanner isOffline={isOffline} lastUpdated={lastUpdated} />
 
       <View style={styles.tabRow}>
         <TouchableOpacity
