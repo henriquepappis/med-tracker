@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import type { AppStackParamList, Intake, Medication, Schedule } from '../navigation/types';
@@ -31,18 +32,20 @@ const formatDate = (value: string) => {
   return date.toLocaleDateString();
 };
 
-const scheduleSummary = (schedule: Schedule) => {
+const scheduleSummary = (schedule: Schedule, t: (key: string, options?: Record<string, unknown>) => string) => {
   if (schedule.recurrence_type === 'interval') {
-    return `Every ${schedule.interval_hours ?? 0} hours`;
+    return t('schedules.summary.interval', { hours: schedule.interval_hours ?? 0 });
   }
 
-  const times = schedule.times?.length ? schedule.times.join(', ') : 'No times';
+  const times = schedule.times?.length ? schedule.times.join(', ') : t('schedules.noTimes');
   if (schedule.recurrence_type === 'weekly') {
-    const days = schedule.weekdays?.length ? schedule.weekdays.join(', ') : 'No weekdays';
-    return `${days} · ${times}`;
+    const days = schedule.weekdays?.length
+      ? schedule.weekdays.map((day) => t(`weekdays.${day}` as const)).join(', ')
+      : t('schedules.weekdaysLabel');
+    return t('schedules.summary.weekly', { weekdays: days, times });
   }
 
-  return `Daily · ${times}`;
+  return t('schedules.summary.daily', { times });
 };
 
 const scheduleOccursToday = (schedule: Schedule) => {
@@ -65,6 +68,7 @@ type Range = 7 | 30;
 
 export default function IntakeScreen({ navigation }: Props) {
   const { token, logout } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('today');
@@ -74,8 +78,8 @@ export default function IntakeScreen({ navigation }: Props) {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: 'Intakes' });
-  }, [navigation]);
+    navigation.setOptions({ title: t('intakes.title') });
+  }, [navigation, t]);
 
   const load = useCallback(async () => {
     if (!token) {
@@ -98,11 +102,11 @@ export default function IntakeScreen({ navigation }: Props) {
         await logout();
         return;
       }
-      setError(err instanceof Error ? err.message : 'Failed to load intakes');
+      setError(err instanceof Error ? err.message : t('errors.loadIntakes'));
     } finally {
       setLoading(false);
     }
-  }, [token, logout]);
+  }, [token, logout, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -168,7 +172,7 @@ export default function IntakeScreen({ navigation }: Props) {
       );
       await load();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to record intake');
+      setError(err instanceof Error ? err.message : t('errors.recordIntake'));
     }
   };
 
@@ -197,13 +201,13 @@ export default function IntakeScreen({ navigation }: Props) {
           style={[styles.tabButton, tab === 'today' && styles.tabButtonActive]}
           onPress={() => setTab('today')}
         >
-          <Text style={[styles.tabText, tab === 'today' && styles.tabTextActive]}>Today</Text>
+          <Text style={[styles.tabText, tab === 'today' && styles.tabTextActive]}>{t('intakes.today')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tabButton, tab === 'history' && styles.tabButtonActive]}
           onPress={() => setTab('history')}
         >
-          <Text style={[styles.tabText, tab === 'history' && styles.tabTextActive]}>History</Text>
+          <Text style={[styles.tabText, tab === 'history' && styles.tabTextActive]}>{t('intakes.history')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -211,18 +215,21 @@ export default function IntakeScreen({ navigation }: Props) {
         <FlatList
           data={schedules.filter(scheduleOccursToday)}
           keyExtractor={(item) => String(item.id)}
-          ListEmptyComponent={<Text style={styles.empty}>No schedules for today.</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>{t('intakes.noSchedules')}</Text>}
           renderItem={({ item }) => {
             const medication = medicationMap.get(item.medication_id);
             const status = todayScheduleStatus.get(item.id);
 
             return (
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>{medication?.name ?? 'Medication'}</Text>
-                <Text style={styles.cardSubtitle}>{scheduleSummary(item)}</Text>
+                <Text style={styles.cardTitle}>{medication?.name ?? t('medications.title')}</Text>
+                <Text style={styles.cardSubtitle}>{scheduleSummary(item, t)}</Text>
                 {status ? (
                   <Text style={styles.statusText}>
-                    {status.status.toUpperCase()} · {formatTime(status.taken_at)}
+                    {t('intakes.status', {
+                      status: status.status === 'taken' ? t('intakes.taken') : t('intakes.skip'),
+                      time: formatTime(status.taken_at),
+                    })}
                   </Text>
                 ) : null}
                 <View style={styles.actions}>
@@ -230,13 +237,13 @@ export default function IntakeScreen({ navigation }: Props) {
                     style={styles.successButton}
                     onPress={() => recordIntake(item.id, 'taken')}
                   >
-                    <Text style={styles.successButtonText}>Taken</Text>
+                    <Text style={styles.successButtonText}>{t('intakes.taken')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.secondaryButton}
                     onPress={() => recordIntake(item.id, 'skipped')}
                   >
-                    <Text style={styles.secondaryButtonText}>Skip</Text>
+                    <Text style={styles.secondaryButtonText}>{t('intakes.skip')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -250,17 +257,17 @@ export default function IntakeScreen({ navigation }: Props) {
               style={[styles.rangeButton, rangeDays === 7 && styles.rangeButtonActive]}
               onPress={() => setRangeDays(7)}
             >
-              <Text style={[styles.rangeText, rangeDays === 7 && styles.rangeTextActive]}>7 days</Text>
+              <Text style={[styles.rangeText, rangeDays === 7 && styles.rangeTextActive]}>{t('intakes.range7')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.rangeButton, rangeDays === 30 && styles.rangeButtonActive]}
               onPress={() => setRangeDays(30)}
             >
-              <Text style={[styles.rangeText, rangeDays === 30 && styles.rangeTextActive]}>30 days</Text>
+              <Text style={[styles.rangeText, rangeDays === 30 && styles.rangeTextActive]}>{t('intakes.range30')}</Text>
             </TouchableOpacity>
           </View>
           {historyGroups.length === 0 ? (
-            <Text style={styles.empty}>No intakes yet.</Text>
+            <Text style={styles.empty}>{t('intakes.noHistory')}</Text>
           ) : (
             <FlatList
               data={historyGroups}
@@ -273,9 +280,13 @@ export default function IntakeScreen({ navigation }: Props) {
                     const schedule = scheduleMap.get(intake.schedule_id);
                     return (
                       <View key={intake.id} style={styles.historyItem}>
-                        <Text style={styles.historyMedication}>{medication?.name ?? 'Medication'}</Text>
+                        <Text style={styles.historyMedication}>{medication?.name ?? t('medications.title')}</Text>
                         <Text style={styles.historyMeta}>
-                          {schedule ? scheduleSummary(schedule) : 'Schedule'} · {intake.status} · {formatTime(intake.taken_at)}
+                          {t('intakes.historyLine', {
+                            summary: schedule ? scheduleSummary(schedule, t) : t('common.notAvailable'),
+                            status: intake.status === 'taken' ? t('intakes.taken') : t('intakes.skip'),
+                            time: formatTime(intake.taken_at),
+                          })}
                         </Text>
                       </View>
                     );

@@ -247,7 +247,7 @@ Status: ✅ Completed
 
 * i18next setup
 * EN as source of truth
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 

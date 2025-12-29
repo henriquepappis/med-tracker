@@ -10,19 +10,20 @@ import {
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import type { AppStackParamList } from '../navigation/types';
 import { isRemindersEnabled, syncNotifications } from '../services/notifications';
 
 const weekdays = [
-  { key: 'mon', label: 'Mon' },
-  { key: 'tue', label: 'Tue' },
-  { key: 'wed', label: 'Wed' },
-  { key: 'thu', label: 'Thu' },
-  { key: 'fri', label: 'Fri' },
-  { key: 'sat', label: 'Sat' },
-  { key: 'sun', label: 'Sun' },
+  { key: 'mon', labelKey: 'weekdays.mon' },
+  { key: 'tue', labelKey: 'weekdays.tue' },
+  { key: 'wed', labelKey: 'weekdays.wed' },
+  { key: 'thu', labelKey: 'weekdays.thu' },
+  { key: 'fri', labelKey: 'weekdays.fri' },
+  { key: 'sat', labelKey: 'weekdays.sat' },
+  { key: 'sun', labelKey: 'weekdays.sun' },
 ];
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ScheduleForm'>;
@@ -31,6 +32,7 @@ type RecurrenceType = 'daily' | 'weekly' | 'interval';
 
 export default function ScheduleFormScreen({ navigation, route }: Props) {
   const { token } = useAuth();
+  const { t } = useTranslation();
   const { medication } = route.params;
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('daily');
   const [times, setTimes] = useState<string[]>([]);
@@ -42,8 +44,8 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: 'New schedule' });
-  }, [navigation]);
+    navigation.setOptions({ title: t('navigation.newSchedule') });
+  }, [navigation, t]);
 
   const formatTime = (date: Date) => {
     const hours = String(date.getHours()).padStart(2, '0');
@@ -93,17 +95,17 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
     if (recurrenceType === 'interval') {
       const value = Number(intervalHours);
       if (!intervalHours || Number.isNaN(value) || value < 1) {
-        return 'Interval hours must be at least 1.';
+        return t('schedules.validation.intervalRequired');
       }
       return null;
     }
 
     if (times.length === 0) {
-      return 'Add at least one time.';
+      return t('schedules.validation.timesRequired');
     }
 
     if (recurrenceType === 'weekly' && weekdaysSelected.length === 0) {
-      return 'Select at least one weekday.';
+      return t('schedules.validation.weekdaysRequired');
     }
 
     return null;
@@ -146,7 +148,7 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
       }
       navigation.goBack();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create schedule');
+      setError(err instanceof Error ? err.message : t('errors.saveSchedule'));
     } finally {
       setLoading(false);
     }
@@ -154,10 +156,10 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Medication</Text>
+      <Text style={styles.label}>{t('schedules.medication')}</Text>
       <Text style={styles.value}>{medication.name}</Text>
 
-      <Text style={styles.label}>Recurrence</Text>
+      <Text style={styles.label}>{t('schedules.recurrence')}</Text>
       <View style={styles.toggleRow}>
         {(['daily', 'weekly', 'interval'] as RecurrenceType[]).map((type) => (
           <TouchableOpacity
@@ -168,7 +170,7 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
             <Text
               style={[styles.toggleText, recurrenceType === type && styles.toggleTextActive]}
             >
-              {type}
+              {t(`schedules.${type}` as const)}
             </Text>
           </TouchableOpacity>
         ))}
@@ -176,10 +178,10 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
 
       {recurrenceType !== 'interval' ? (
         <>
-          <Text style={styles.label}>Times</Text>
+          <Text style={styles.label}>{t('schedules.timesLabel')}</Text>
           <View style={styles.timeRow}>
             {times.length === 0 ? (
-              <Text style={styles.helperText}>No times yet</Text>
+              <Text style={styles.helperText}>{t('schedules.noTimes')}</Text>
             ) : (
               times.map((time) => (
                 <TouchableOpacity
@@ -199,14 +201,14 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
               setShowTimePicker(true);
             }}
           >
-            <Text style={styles.secondaryButtonText}>Add time</Text>
+            <Text style={styles.secondaryButtonText}>{t('schedules.addTime')}</Text>
           </TouchableOpacity>
         </>
       ) : null}
 
       {recurrenceType === 'weekly' ? (
         <>
-          <Text style={styles.label}>Weekdays</Text>
+          <Text style={styles.label}>{t('schedules.weekdaysLabel')}</Text>
           <View style={styles.weekdayRow}>
             {weekdays.map((day) => (
               <TouchableOpacity
@@ -223,7 +225,7 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
                     weekdaysSelected.includes(day.key) && styles.weekdayTextActive,
                   ]}
                 >
-                  {day.label}
+                  {t(day.labelKey)}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -233,10 +235,10 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
 
       {recurrenceType === 'interval' ? (
         <>
-          <Text style={styles.label}>Interval hours</Text>
+          <Text style={styles.label}>{t('schedules.intervalLabel')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Every X hours"
+            placeholder={t('schedules.intervalPlaceholder')}
             value={intervalHours}
             onChangeText={setIntervalHours}
             keyboardType="number-pad"
@@ -248,7 +250,7 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
 
       <TouchableOpacity style={styles.primaryButton} onPress={handleSubmit} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : (
-          <Text style={styles.primaryButtonText}>Save schedule</Text>
+          <Text style={styles.primaryButtonText}>{t('schedules.saveSchedule')}</Text>
         )}
       </TouchableOpacity>
 
@@ -266,10 +268,10 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
                 style={styles.secondaryButton}
                 onPress={() => setShowTimePicker(false)}
               >
-                <Text style={styles.secondaryButtonText}>Cancel</Text>
+                <Text style={styles.secondaryButtonText}>{t('common.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={confirmTime}>
-                <Text style={styles.primaryButtonText}>Add time</Text>
+                <Text style={styles.primaryButtonText}>{t('schedules.addTime')}</Text>
               </TouchableOpacity>
             </View>
           ) : null}

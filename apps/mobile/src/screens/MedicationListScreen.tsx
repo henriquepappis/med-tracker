@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import type { AppStackParamList, Medication } from '../navigation/types';
@@ -21,6 +22,7 @@ type Navigation = NativeStackNavigationProp<AppStackParamList>;
 export default function MedicationListScreen() {
   const { token, logout } = useAuth();
   const navigation = useNavigation<Navigation>();
+  const { t } = useTranslation();
   const [items, setItems] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -39,12 +41,12 @@ export default function MedicationListScreen() {
         await logout();
         return;
       }
-      setError(err instanceof Error ? err.message : 'Failed to load medications');
+      setError(err instanceof Error ? err.message : t('errors.loadMedications'));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [token, logout]);
+  }, [token, logout, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -60,10 +62,10 @@ export default function MedicationListScreen() {
 
   const handleDeactivate = useCallback(
     (item: Medication) => {
-      Alert.alert('Deactivate medication', `Deactivate ${item.name}?`, [
-        { text: 'Cancel', style: 'cancel' },
+      Alert.alert(t('medications.deactivateTitle'), t('medications.deactivateMessage', { name: item.name }), [
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Deactivate',
+          text: t('medications.deactivate'),
           style: 'destructive',
           onPress: async () => {
             if (!token) {
@@ -73,13 +75,13 @@ export default function MedicationListScreen() {
               await api.delete(`/medications/${item.id}`, token);
               setItems((prev) => prev.filter((med) => med.id !== item.id));
             } catch (err) {
-              setError(err instanceof Error ? err.message : 'Failed to deactivate medication');
+              setError(err instanceof Error ? err.message : t('errors.deactivateMedication'));
             }
           },
         },
       ]);
     },
-    [token]
+    [token, t]
   );
 
   if (loading) {
@@ -93,13 +95,16 @@ export default function MedicationListScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Medications</Text>
+        <Text style={styles.title}>{t('medications.title')}</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity onPress={() => navigation.navigate('Intakes')}>
-            <Text style={styles.link}>Intakes</Text>
+            <Text style={styles.link}>{t('navigation.intakes')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+            <Text style={styles.link}>{t('settings.title')}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={logout}>
-            <Text style={styles.link}>Logout</Text>
+            <Text style={styles.link}>{t('common.logout')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -108,7 +113,7 @@ export default function MedicationListScreen() {
 
       {items.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>No medications yet.</Text>
+          <Text style={styles.emptyText}>{t('medications.noItems')}</Text>
         </View>
       ) : (
         <FlatList
@@ -127,19 +132,19 @@ export default function MedicationListScreen() {
                   style={styles.secondaryButton}
                   onPress={() => navigation.navigate('Schedules', { medication: item })}
                 >
-                  <Text style={styles.secondaryButtonText}>Schedules</Text>
+                  <Text style={styles.secondaryButtonText}>{t('medications.schedules')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.secondaryButton}
                   onPress={() => navigation.navigate('MedicationForm', { medication: item })}
                 >
-                  <Text style={styles.secondaryButtonText}>Edit</Text>
+                  <Text style={styles.secondaryButtonText}>{t('medications.edit')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.dangerButton}
                   onPress={() => handleDeactivate(item)}
                 >
-                  <Text style={styles.dangerButtonText}>Deactivate</Text>
+                  <Text style={styles.dangerButtonText}>{t('medications.deactivate')}</Text>
                 </TouchableOpacity>
               </View>
             </View>

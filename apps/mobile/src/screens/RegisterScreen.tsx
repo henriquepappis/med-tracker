@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 
 export default function RegisterScreen({ onSwitch }: Props) {
   const { register } = useAuth();
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +22,7 @@ export default function RegisterScreen({ onSwitch }: Props) {
     try {
       await register(name.trim(), email.trim(), password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      setError(err instanceof Error ? err.message : t('errors.registerFailed'));
     } finally {
       setLoading(false);
     }
@@ -28,16 +30,16 @@ export default function RegisterScreen({ onSwitch }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create account</Text>
+      <Text style={styles.title}>{t('auth.registerTitle')}</Text>
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        placeholder={t('auth.name')}
         value={name}
         onChangeText={setName}
       />
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder={t('auth.email')}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
@@ -46,17 +48,17 @@ export default function RegisterScreen({ onSwitch }: Props) {
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder={t('auth.password')}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Register</Text>}
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('auth.register')}</Text>}
       </TouchableOpacity>
       <TouchableOpacity onPress={onSwitch}>
-        <Text style={styles.link}>Already have an account? Login</Text>
+        <Text style={styles.link}>{t('auth.switchToLogin')}</Text>
       </TouchableOpacity>
     </View>
   );
