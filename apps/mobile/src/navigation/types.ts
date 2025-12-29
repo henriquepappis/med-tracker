@@ -31,4 +31,5 @@ export type AppStackParamList = {
   ScheduleForm: { medication: Medication };
   Intakes: undefined;
   Settings: undefined;
+  Legal: undefined;
 };

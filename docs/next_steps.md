@@ -338,7 +338,7 @@ Status: ✅ Completed
 * Splash
 * Privacy policy
 * Terms
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 

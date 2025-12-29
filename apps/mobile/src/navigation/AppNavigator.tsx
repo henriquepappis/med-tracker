@@ -11,6 +11,7 @@ import ScheduleFormScreen from '../screens/ScheduleFormScreen';
 import ScheduleListScreen from '../screens/ScheduleListScreen';
 import IntakeScreen from '../screens/IntakeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import LegalScreen from '../screens/LegalScreen';
 import type { AppStackParamList } from './types';
 
 type AuthStackParamList = {
@@ -45,6 +46,7 @@ export default function AppNavigator() {
           <AppStack.Screen name="MedicationForm" component={MedicationFormScreen} />
           <AppStack.Screen name="Intakes" component={IntakeScreen} />
           <AppStack.Screen name="Settings" component={SettingsScreen} />
+          <AppStack.Screen name="Legal" component={LegalScreen} />
           <AppStack.Screen name="Schedules" component={ScheduleListScreen} />
           <AppStack.Screen name="ScheduleForm" component={ScheduleFormScreen} />
         </AppStack.Navigator>

@@ -137,9 +137,22 @@
     "title": "Paramètres",
     "language": "Langue",
     "languageHelp": "Choisissez votre langue",
+    "legalTitle": "Juridique",
+    "legalHelp": "Politiques et avis",
+    "legal": "Confidentialité et Conditions",
     "english": "Anglais",
     "portuguese": "Portugais (Brésil)",
     "spanish": "Espagnol",
     "french": "Français"
+  },
+  "legal": {
+    "title": "Juridique et Confidentialité",
+    "lastUpdated": "Dernière mise à jour : 2025-12-26",
+    "privacyTitle": "Politique de Confidentialité",
+    "privacyBody": "Nous collectons uniquement les données nécessaires pour fournir les fonctionnalités de l'application. Vos données de médication restent sur votre compte et ne sont ni vendues ni partagées à des fins publicitaires.",
+    "termsTitle": "Conditions d'Utilisation",
+    "termsBody": "En utilisant Med Tracker, vous acceptez de l'utiliser de manière responsable. Vous êtes responsable de l'exactitude de vos données et du respect des recommandations médicales professionnelles.",
+    "disclaimerTitle": "Avertissement Médical",
+    "disclaimerBody": "Med Tracker n'est pas un dispositif médical et ne fournit pas de conseils, diagnostics ou recommandations de traitement. C'est uniquement un outil de rappel et d'organisation."
   }
 }

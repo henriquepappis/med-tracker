@@ -39,6 +39,17 @@ export default function SettingsScreen({ navigation }: Props) {
           </TouchableOpacity>
         ))}
       </View>
+
+      <Text style={styles.sectionTitle}>{t('settings.legalTitle')}</Text>
+      <Text style={styles.subtitle}>{t('settings.legalHelp')}</Text>
+      <View style={styles.list}>
+        <TouchableOpacity
+          style={styles.option}
+          onPress={() => navigation.navigate('Legal')}
+        >
+          <Text style={styles.optionText}>{t('settings.legal')}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -50,6 +61,11 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  sectionTitle: {
+    marginTop: 24,
     fontSize: 18,
     fontWeight: '600',
   },
