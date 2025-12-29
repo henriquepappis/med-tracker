@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { api } from './api';
 import i18n from '../i18n';
 import { cacheGet, cacheSet } from './offlineCache';
+import { recordIntakeOfflineAware } from './offlineIntakeQueue';
 import type { Medication, Schedule } from '../navigation/types';
 
 const REMINDERS_KEY = 'med-tracker-reminders-enabled';
@@ -292,14 +293,11 @@ export function registerNotificationResponseHandler(token: string) {
       }
 
       if (action === 'TAKEN' || action === 'SKIP') {
-        await api.post(
-          '/intakes',
-          {
-            schedule_id: data.scheduleId,
-            status: action === 'TAKEN' ? 'taken' : 'skipped',
-            taken_at: new Date().toISOString(),
-          },
-          token
+        await recordIntakeOfflineAware(
+          token,
+          data.scheduleId,
+          action === 'TAKEN' ? 'taken' : 'skipped',
+          new Date().toISOString()
         );
         return;
       }

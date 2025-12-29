@@ -1,12 +1,14 @@
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../services/api';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import {
   disableNotifications,
   isRemindersEnabled,
   registerNotificationResponseHandler,
   syncNotifications,
 } from '../services/notifications';
+import { syncIntakeQueue } from '../services/offlineIntakeQueue';
 
 type AuthContextValue = {
   token: string | null;
@@ -23,6 +25,7 @@ const TOKEN_KEY = 'med-tracker-token';
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { isOffline } = useNetworkStatus();
 
   useEffect(() => {
     const loadToken = async () => {
@@ -71,6 +74,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
   }, [token]);
+
+  useEffect(() => {
+    if (!token || isOffline) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const syncQueue = async () => {
+      if (cancelled) {
+        return;
+      }
+      try {
+        await syncIntakeQueue(token);
+      } catch {
+        // Ignore sync errors; will retry on next online event.
+      }
+    };
+
+    syncQueue();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, isOffline]);
 
   const logout = useCallback(async () => {
     try {
