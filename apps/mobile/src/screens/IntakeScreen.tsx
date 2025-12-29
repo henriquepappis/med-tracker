@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +16,7 @@ import { useAuth } from '../auth/AuthContext';
 import OfflineBanner from '../components/OfflineBanner';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { cacheGet, cacheSet } from '../services/offlineCache';
+import { getQueuedIntakes, recordIntakeOfflineAware } from '../services/offlineIntakeQueue';
 import type { AppStackParamList, Intake, Medication, Schedule } from '../navigation/types';
 
 const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -105,9 +106,20 @@ export default function IntakeScreen({ navigation }: Props) {
       })
     );
     const flatSchedules = schedulesLists.flat().filter((schedule) => schedule.is_active);
+    const queued = await getQueuedIntakes();
+    const queuedIntakes: Intake[] = queued.map((action, index) => {
+      const schedule = flatSchedules.find((item) => item.id === action.scheduleId);
+      return {
+        id: -1 * (index + 1),
+        schedule_id: action.scheduleId,
+        medication_id: schedule?.medication_id ?? 0,
+        status: action.status,
+        taken_at: action.takenAt,
+      };
+    });
     setMedications(medsCache.data);
     setSchedules(flatSchedules);
-    setIntakes([]);
+    setIntakes(queuedIntakes);
     setLastUpdated(medsCache.updatedAt);
     setError(null);
     setLoading(false);
@@ -161,6 +173,12 @@ export default function IntakeScreen({ navigation }: Props) {
     }, [load])
   );
 
+  useEffect(() => {
+    if (!isOffline) {
+      void load();
+    }
+  }, [isOffline, load]);
+
   const medicationMap = useMemo(() => {
     return new Map(medications.map((med) => [med.id, med]));
   }, [medications]);
@@ -205,21 +223,29 @@ export default function IntakeScreen({ navigation }: Props) {
     if (!token) {
       return;
     }
-    if (isOffline) {
-      handleReadOnly();
-      return;
-    }
 
     try {
-      await api.post(
-        '/intakes',
-        {
-          schedule_id: scheduleId,
-          status,
-          taken_at: new Date().toISOString(),
-        },
-        token
-      );
+      const takenAt = new Date().toISOString();
+      const result = await recordIntakeOfflineAware(token, scheduleId, status, takenAt);
+      if (result.queued) {
+        setIntakes((prev) => {
+          if (prev.some((item) => item.schedule_id === scheduleId && item.status === status && item.taken_at === takenAt)) {
+            return prev;
+          }
+          return [
+            ...prev,
+            {
+              id: -1 * (prev.length + 1),
+              schedule_id: scheduleId,
+              medication_id: schedules.find((item) => item.id === scheduleId)?.medication_id ?? 0,
+              status,
+              taken_at: takenAt,
+            },
+          ];
+        });
+        handleReadOnly();
+        return;
+      }
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.recordIntake'));

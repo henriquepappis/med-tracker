@@ -274,7 +274,7 @@ Status: ✅ Completed
 
 * Queue actions
 * Background sync
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 
