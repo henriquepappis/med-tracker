@@ -131,6 +131,8 @@
     "language": "Language",
     "languageHelp": "Choose your preferred language",
     "english": "English",
-    "portuguese": "Portuguese (Brazil)"
+    "portuguese": "Portuguese (Brazil)",
+    "spanish": "Spanish",
+    "french": "French"
   }
 }

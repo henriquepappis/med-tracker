@@ -4,28 +4,41 @@ import * as SecureStore from 'expo-secure-store';
 import * as Localization from 'expo-localization';
 import en from './resources/en.json';
 import ptBR from './resources/pt-BR.json';
+import es from './resources/es.json';
+import fr from './resources/fr.json';
 
 const STORAGE_KEY = 'med-tracker-language';
 
 export const languageOptions = [
   { value: 'en', labelKey: 'settings.english' },
   { value: 'pt-BR', labelKey: 'settings.portuguese' },
+  { value: 'es', labelKey: 'settings.spanish' },
+  { value: 'fr', labelKey: 'settings.french' },
 ];
 
 const resources = {
   en: { translation: en },
   'pt-BR': { translation: ptBR },
+  es: { translation: es },
+  fr: { translation: fr },
 };
 
-const supportedLanguages = ['en', 'pt-BR'];
+const supportedLanguages = ['en', 'pt-BR', 'es', 'fr'];
 
 function resolveDeviceLanguage() {
   const locale = Localization.getLocales()[0]?.languageTag;
   if (!locale) {
     return 'en';
   }
-  if (locale.toLowerCase().startsWith('pt')) {
+  const normalized = locale.toLowerCase();
+  if (normalized.startsWith('pt')) {
     return 'pt-BR';
+  }
+  if (normalized.startsWith('es')) {
+    return 'es';
+  }
+  if (normalized.startsWith('fr')) {
+    return 'fr';
   }
   return 'en';
 }
