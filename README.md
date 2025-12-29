@@ -47,10 +47,7 @@ Detailed architecture diagrams and decisions are documented in `docs/architectur
 - TypeScript
 - Expo
 - React Navigation
-- TanStack Query
-- Zustand
-- React Hook Form + Zod
-- i18next (EN default, PT-BR supported)
+- i18next (EN default, PT-BR, ES, FR)
 - Expo Notifications
 
 ### Backend
@@ -102,15 +99,18 @@ Detailed architecture diagrams and decisions are documented in `docs/architectur
 - Aggregated KPIs
 
 ### Offline Support (partial)
-- Local cache
-- Offline queue for intake actions with later synchronization
+- Read-only cache
+- Offline intake queue with later synchronization
+
+### Legal & Privacy
+- In-app Privacy Policy, Terms of Use, and non-medical disclaimer
 
 ---
 
 ## Internationalization (i18n)
 
 - **Default language**: English
-- **Supported languages**: English (`en`), Portuguese Brazil (`pt-BR`)
+- **Supported languages**: English (`en`), Portuguese Brazil (`pt-BR`), Spanish (`es`), French (`fr`)
 - Language is automatically detected from the device and can be manually changed in Settings.
 
 All UI strings are managed via `i18next`.
@@ -170,7 +170,6 @@ php artisan test
 ```bash
 npm run lint
 npm run typecheck
-npm test
 ```
 
 ---
@@ -187,7 +186,7 @@ The project uses **separate CI pipelines** for mobile and backend:
 ### Mobile CI
 - Linting
 - Type checking
-- Tests
+- Build validation (Expo export)
 
 Pipelines are triggered automatically on Pull Requests.
 
@@ -203,14 +202,7 @@ Pipelines are triggered automatically on Pull Requests.
 
 ## Roadmap
 
-- [x] Architecture and planning
-- [ ] Monorepo bootstrap
-- [ ] Authentication
-- [ ] Medication management
-- [ ] Scheduling and recurrence engine
-- [ ] Notifications
-- [ ] History and reports
-- [ ] App Store (iOS) release
+- See `docs/next_steps.md` for the full, up-to-date roadmap and status.
 
 ---
 
@@ -226,4 +218,3 @@ GitHub: https://github.com/henriquepappis
 ## License
 
 This project is licensed under the MIT License.
-
