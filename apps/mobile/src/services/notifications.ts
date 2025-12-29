@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
 import { api } from './api';
+import i18n from '../i18n';
 import type { Medication, Schedule } from '../navigation/types';
 
 const REMINDERS_KEY = 'med-tracker-reminders-enabled';
@@ -233,7 +233,7 @@ async function fetchTimezone(token: string): Promise<string | null> {
 export async function syncNotifications(token: string): Promise<void> {
   const permissionGranted = await requestPermissions();
   if (!permissionGranted) {
-    throw new Error('Notification permission not granted');
+    throw new Error(i18n.t('errors.permission'));
   }
 
   await ensureNotificationCategories();
@@ -249,7 +249,7 @@ export async function syncNotifications(token: string): Promise<void> {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: entry.medication.name,
-          body: 'Time to take your medication',
+          body: i18n.t('notifications.reminderBody'),
           data: {
             scheduleId: entry.schedule.id,
             medicationId: entry.medication.id,
@@ -300,8 +300,8 @@ export function registerNotificationResponseHandler(token: string) {
         const trigger = new Date(Date.now() + POSTPONE_MINUTES * 60 * 1000);
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: response.notification.request.content.title ?? 'Medication reminder',
-            body: 'Reminder postponed',
+            title: response.notification.request.content.title ?? i18n.t('notifications.reminderTitle'),
+            body: i18n.t('notifications.postponedBody'),
             data,
             categoryIdentifier: CATEGORY_ID,
           },
@@ -329,11 +329,6 @@ export async function disableNotifications(): Promise<void> {
   await setRemindersEnabled(false);
 }
 
-export const remindersPlatformNote = Platform.select({
-  ios: 'Reminders follow your profile timezone.',
-  android: 'Reminders follow your profile timezone.',
-  default: 'Reminders follow your profile timezone.',
-});
 
 function formatScheduledTrigger(trigger: Notifications.NotificationTrigger | null): string | null {
   if (!trigger || typeof trigger !== 'object') {

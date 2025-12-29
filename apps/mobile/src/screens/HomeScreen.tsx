@@ -1,14 +1,16 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 
 export default function HomeScreen() {
   const { logout } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Med Tracker</Text>
+      <Text style={styles.title}>{t('navigation.medications')}</Text>
       <TouchableOpacity style={styles.button} onPress={logout}>
-        <Text style={styles.buttonText}>Logout</Text>
+        <Text style={styles.buttonText}>{t('common.logout')}</Text>
       </TouchableOpacity>
     </View>
   );

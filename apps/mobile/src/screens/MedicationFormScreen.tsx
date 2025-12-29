@@ -1,6 +1,7 @@
 import { useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import type { AppStackParamList } from '../navigation/types';
@@ -9,6 +10,7 @@ type Props = NativeStackScreenProps<AppStackParamList, 'MedicationForm'>;
 
 export default function MedicationFormScreen({ navigation, route }: Props) {
   const { token } = useAuth();
+  const { t } = useTranslation();
   const editing = route.params?.medication;
   const [name, setName] = useState(editing?.name ?? '');
   const [dosage, setDosage] = useState(editing?.dosage ?? '');
@@ -18,9 +20,9 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: editing ? 'Edit medication' : 'New medication',
+      title: editing ? t('navigation.editMedication') : t('navigation.newMedication'),
     });
-  }, [editing, navigation]);
+  }, [editing, navigation, t]);
 
   const handleSubmit = async () => {
     if (!token) {
@@ -36,7 +38,7 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
       }
       navigation.goBack();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save medication');
+      setError(err instanceof Error ? err.message : t('errors.saveMedication'));
     } finally {
       setLoading(false);
     }
@@ -46,26 +48,26 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        placeholder={t('medications.namePlaceholder')}
         value={name}
         onChangeText={setName}
       />
       <TextInput
         style={styles.input}
-        placeholder="Dosage"
+        placeholder={t('medications.dosagePlaceholder')}
         value={dosage}
         onChangeText={setDosage}
       />
       <TextInput
         style={[styles.input, styles.textarea]}
-        placeholder="Instructions (optional)"
+        placeholder={t('medications.instructionsPlaceholder')}
         value={instructions}
         onChangeText={setInstructions}
         multiline
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Save</Text>}
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('common.save')}</Text>}
       </TouchableOpacity>
     </View>
   );

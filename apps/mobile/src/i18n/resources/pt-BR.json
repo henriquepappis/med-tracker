@@ -1,0 +1,136 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "enable": "Ativar",
+    "disable": "Desativar",
+    "logout": "Sair",
+    "refreshDebug": "Atualizar debug",
+    "loading": "Carregando...",
+    "yes": "sim",
+    "no": "não",
+    "notSet": "não definido",
+    "notAvailable": "Não disponível",
+    "noUpcomingNotifications": "Sem notificações futuras."
+  },
+  "navigation": {
+    "medications": "Medicamentos",
+    "intakes": "Ingestões",
+    "schedules": "Rotinas de {{name}}",
+    "newSchedule": "Nova rotina",
+    "newMedication": "Novo medicamento",
+    "editMedication": "Editar medicamento"
+  },
+  "auth": {
+    "welcomeBack": "Bem-vindo de volta",
+    "registerTitle": "Criar conta",
+    "email": "Email",
+    "password": "Senha",
+    "name": "Nome",
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "switchToRegister": "Criar conta",
+    "switchToLogin": "Já tenho conta",
+    "loading": "Carregando..."
+  },
+  "medications": {
+    "title": "Medicamentos",
+    "noItems": "Nenhum medicamento ainda.",
+    "edit": "Editar",
+    "deactivate": "Desativar",
+    "schedules": "Rotinas",
+    "deactivateTitle": "Desativar medicamento",
+    "deactivateMessage": "Desativar {{name}}?",
+    "createTitle": "Novo medicamento",
+    "editTitle": "Editar medicamento",
+    "namePlaceholder": "Nome",
+    "dosagePlaceholder": "Dosagem",
+    "instructionsPlaceholder": "Instruções (opcional)",
+    "save": "Salvar"
+  },
+  "schedules": {
+    "remindersTitle": "Lembretes",
+    "remindersNote": "Lembretes seguem o fuso horário do perfil.",
+    "debug": {
+      "enabled": "Ativo",
+      "permission": "Permissão",
+      "timezone": "Fuso horário",
+      "scheduled": "Notificações agendadas"
+    },
+    "noItems": "Nenhuma rotina ainda.",
+    "deactivate": "Desativar",
+    "deactivateTitle": "Desativar rotina",
+    "deactivateMessage": "Desativar esta rotina?",
+    "addTime": "Adicionar horário",
+    "timesLabel": "Horários",
+    "noTimes": "Nenhum horário ainda",
+    "weekdaysLabel": "Dias da semana",
+    "intervalLabel": "Intervalo em horas",
+    "intervalPlaceholder": "A cada X horas",
+    "recurrence": "Recorrência",
+    "medication": "Medicamento",
+    "saveSchedule": "Salvar rotina",
+    "daily": "Diário",
+    "weekly": "Semanal",
+    "interval": "Intervalo",
+    "summary": {
+      "daily": "Diário · {{times}}",
+      "weekly": "{{weekdays}} · {{times}}",
+      "interval": "A cada {{hours}} horas"
+    },
+    "validation": {
+      "timesRequired": "Adicione pelo menos um horário.",
+      "weekdaysRequired": "Selecione pelo menos um dia da semana.",
+      "intervalRequired": "Intervalo deve ser no mínimo 1 hora."
+    }
+  },
+  "intakes": {
+    "title": "Ingestões",
+    "today": "Hoje",
+    "history": "Histórico",
+    "taken": "Tomado",
+    "skip": "Pular",
+    "noSchedules": "Sem rotinas para hoje.",
+    "noHistory": "Nenhuma ingestão ainda.",
+    "range7": "7 dias",
+    "range30": "30 dias",
+    "status": "{{status}} · {{time}}",
+    "historyLine": "{{summary}} · {{status}} · {{time}}"
+  },
+  "errors": {
+    "loginFailed": "Falha ao entrar",
+    "registerFailed": "Falha ao cadastrar",
+    "loadMedications": "Falha ao carregar medicamentos",
+    "deactivateMedication": "Falha ao desativar medicamento",
+    "saveMedication": "Falha ao salvar medicamento",
+    "loadSchedules": "Falha ao carregar rotinas",
+    "saveSchedule": "Falha ao criar rotina",
+    "deactivateSchedule": "Falha ao desativar rotina",
+    "loadIntakes": "Falha ao carregar ingestões",
+    "recordIntake": "Falha ao registrar ingestão",
+    "updateReminders": "Falha ao atualizar lembretes",
+    "loadRemindersDebug": "Falha ao carregar debug das notificações",
+    "permission": "Permissão de notificação não concedida"
+  },
+  "notifications": {
+    "reminderTitle": "Lembrete de medicamento",
+    "reminderBody": "Hora de tomar o medicamento",
+    "postponedBody": "Lembrete adiado"
+  },
+  "weekdays": {
+    "sun": "Dom",
+    "mon": "Seg",
+    "tue": "Ter",
+    "wed": "Qua",
+    "thu": "Qui",
+    "fri": "Sex",
+    "sat": "Sáb"
+  },
+  "settings": {
+    "title": "Configurações",
+    "language": "Idioma",
+    "languageHelp": "Escolha seu idioma",
+    "english": "Inglês",
+    "portuguese": "Português (Brasil)"
+  }
+}

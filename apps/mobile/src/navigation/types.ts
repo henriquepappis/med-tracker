@@ -30,4 +30,5 @@ export type AppStackParamList = {
   Schedules: { medication: Medication };
   ScheduleForm: { medication: Medication };
   Intakes: undefined;
+  Settings: undefined;
 };

@@ -12,6 +12,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 import { api } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 import type { AppStackParamList, Schedule } from '../navigation/types';
 import {
@@ -20,24 +21,24 @@ import {
   isRemindersEnabled,
   setRemindersEnabled,
   syncNotifications,
-  remindersPlatformNote,
   type NotificationDebugInfo,
 } from '../services/notifications';
 
-const weekdayLabels: Record<string, string> = {
-  mon: 'Mon',
-  tue: 'Tue',
-  wed: 'Wed',
-  thu: 'Thu',
-  fri: 'Fri',
-  sat: 'Sat',
-  sun: 'Sun',
+const weekdayKeys: Record<string, string> = {
+  mon: 'weekdays.mon',
+  tue: 'weekdays.tue',
+  wed: 'weekdays.wed',
+  thu: 'weekdays.thu',
+  fri: 'weekdays.fri',
+  sat: 'weekdays.sat',
+  sun: 'weekdays.sun',
 };
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Schedules'>;
 
 export default function ScheduleListScreen({ navigation, route }: Props) {
   const { token, logout } = useAuth();
+  const { t } = useTranslation();
   const { medication } = route.params;
   const [items, setItems] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,8 +52,8 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   const [debugError, setDebugError] = useState<string | null>(null);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: `${medication.name} schedules` });
-  }, [navigation, medication.name]);
+    navigation.setOptions({ title: t('navigation.schedules', { name: medication.name }) });
+  }, [navigation, medication.name, t]);
 
   useLayoutEffect(() => {
     const loadReminders = async () => {
@@ -65,14 +66,14 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
           const info = await getNotificationDebugInfo(token);
           setDebugInfo(info);
         } catch (err) {
-          setDebugError(err instanceof Error ? err.message : 'Failed to load notification debug info');
+          setDebugError(err instanceof Error ? err.message : t('errors.loadRemindersDebug'));
         } finally {
           setDebugLoading(false);
         }
       }
     };
     loadReminders();
-  }, [token]);
+  }, [token, t]);
 
   const load = useCallback(async () => {
     if (!token) {
@@ -87,12 +88,12 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
         await logout();
         return;
       }
-      setError(err instanceof Error ? err.message : 'Failed to load schedules');
+      setError(err instanceof Error ? err.message : t('errors.loadSchedules'));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [token, medication.id, logout]);
+  }, [token, medication.id, logout, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -125,11 +126,11 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
       const info = await getNotificationDebugInfo(token);
       setDebugInfo(info);
     } catch (err) {
-      setRemindersError(err instanceof Error ? err.message : 'Failed to update reminders');
+      setRemindersError(err instanceof Error ? err.message : t('errors.updateReminders'));
     } finally {
       setRemindersBusy(false);
     }
-  }, [token, remindersEnabled]);
+  }, [token, remindersEnabled, t]);
 
   const handleRefreshDebug = useCallback(async () => {
     if (!token) {
@@ -141,18 +142,18 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
       const info = await getNotificationDebugInfo(token);
       setDebugInfo(info);
     } catch (err) {
-      setDebugError(err instanceof Error ? err.message : 'Failed to load notification debug info');
+      setDebugError(err instanceof Error ? err.message : t('errors.loadRemindersDebug'));
     } finally {
       setDebugLoading(false);
     }
-  }, [token]);
+  }, [token, t]);
 
   const handleDeactivate = useCallback(
     (item: Schedule) => {
-      Alert.alert('Deactivate schedule', 'Deactivate this schedule?', [
-        { text: 'Cancel', style: 'cancel' },
+      Alert.alert(t('schedules.deactivateTitle'), t('schedules.deactivateMessage'), [
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Deactivate',
+          text: t('schedules.deactivate'),
           style: 'destructive',
           onPress: async () => {
             if (!token) {
@@ -162,32 +163,32 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
               await api.delete(`/schedules/${item.id}`, token);
               setItems((prev) => prev.filter((schedule) => schedule.id !== item.id));
             } catch (err) {
-              setError(err instanceof Error ? err.message : 'Failed to deactivate schedule');
+              setError(err instanceof Error ? err.message : t('errors.deactivateSchedule'));
             }
           },
         },
       ]);
     },
-    [token]
+    [token, t]
   );
 
   const renderSummary = (schedule: Schedule) => {
     if (schedule.recurrence_type === 'interval') {
-      return `Every ${schedule.interval_hours ?? 0} hours`;
+      return t('schedules.summary.interval', { hours: schedule.interval_hours ?? 0 });
     }
 
-    const times = schedule.times?.length ? schedule.times.join(', ') : 'No times';
+    const times = schedule.times?.length ? schedule.times.join(', ') : t('schedules.noTimes');
 
     if (schedule.recurrence_type === 'weekly') {
       const weekdays = schedule.weekdays?.length
         ? schedule.weekdays
-            .map((day) => weekdayLabels[day] ?? day)
+            .map((day) => t(weekdayKeys[day] ?? day))
             .join(', ')
-        : 'No weekdays';
-      return `${weekdays} · ${times}`;
+        : t('schedules.weekdaysLabel');
+      return t('schedules.summary.weekly', { weekdays, times });
     }
 
-    return `Daily · ${times}`;
+    return t('schedules.summary.daily', { times });
   };
 
   if (loading) {
@@ -207,8 +208,8 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
       <View style={styles.reminderCard}>
         <View style={styles.reminderRow}>
           <View>
-            <Text style={styles.reminderTitle}>Reminders</Text>
-            <Text style={styles.reminderNote}>{remindersPlatformNote}</Text>
+            <Text style={styles.reminderTitle}>{t('schedules.remindersTitle')}</Text>
+            <Text style={styles.reminderNote}>{t('schedules.remindersNote')}</Text>
           </View>
           <TouchableOpacity
             style={[styles.secondaryButton, remindersEnabled && styles.secondaryButtonActive]}
@@ -225,10 +226,10 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
         {debugInfo ? (
           <View style={styles.debugBlock}>
             <Text style={styles.debugText}>
-              Enabled: {debugInfo.enabled ? 'yes' : 'no'} · Permission: {debugInfo.permissionGranted ? 'granted' : 'denied'} {debugInfo.permissionStatus ? `(status ${debugInfo.permissionStatus})` : ''}
+              {t('schedules.debug.enabled')}: {debugInfo.enabled ? t('common.yes') : t('common.no')} · {t('schedules.debug.permission')}: {debugInfo.permissionGranted ? t('common.yes') : t('common.no')} {debugInfo.permissionStatus ? `(status ${debugInfo.permissionStatus})` : ''}
             </Text>
-            <Text style={styles.debugText}>Timezone: {debugInfo.timezone ?? 'not set'}</Text>
-            <Text style={styles.debugText}>Scheduled notifications: {debugInfo.scheduledCount}</Text>
+            <Text style={styles.debugText}>{t('schedules.debug.timezone')}: {debugInfo.timezone ?? t('common.notSet')}</Text>
+            <Text style={styles.debugText}>{t('schedules.debug.scheduled')}: {debugInfo.scheduledCount}</Text>
             {debugInfo.scheduledTimes.length > 0 ? (
               debugInfo.scheduledTimes.map((time) => (
                 <Text key={time} style={styles.debugText}>
@@ -236,18 +237,18 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
                 </Text>
               ))
             ) : (
-              <Text style={styles.debugText}>No upcoming notifications.</Text>
+              <Text style={styles.debugText}>{t('common.noUpcomingNotifications')}</Text>
             )}
           </View>
         ) : null}
         <TouchableOpacity style={styles.debugButton} onPress={handleRefreshDebug} disabled={debugLoading}>
-          <Text style={styles.debugButtonText}>{debugLoading ? 'Refreshing…' : 'Refresh debug'}</Text>
+          <Text style={styles.debugButtonText}>{debugLoading ? t('common.loading') : t('common.refreshDebug')}</Text>
         </TouchableOpacity>
       </View>
 
       {items.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>No schedules yet.</Text>
+          <Text style={styles.emptyText}>{t('schedules.noItems')}</Text>
         </View>
       ) : (
         <FlatList
@@ -256,13 +257,15 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>{item.recurrence_type.toUpperCase()}</Text>
+              <Text style={styles.cardTitle}>
+                {t(`schedules.${item.recurrence_type}` as const).toUpperCase()}
+              </Text>
               <Text style={styles.cardSubtitle}>{renderSummary(item)}</Text>
               <TouchableOpacity
                 style={styles.dangerButton}
                 onPress={() => handleDeactivate(item)}
               >
-                <Text style={styles.dangerButtonText}>Deactivate</Text>
+                <Text style={styles.dangerButtonText}>{t('schedules.deactivate')}</Text>
               </TouchableOpacity>
             </View>
           )}

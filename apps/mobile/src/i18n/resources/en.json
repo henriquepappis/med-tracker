@@ -1,0 +1,136 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "enable": "Enable",
+    "disable": "Disable",
+    "logout": "Logout",
+    "refreshDebug": "Refresh debug",
+    "loading": "Loading...",
+    "yes": "yes",
+    "no": "no",
+    "notSet": "not set",
+    "notAvailable": "Not available",
+    "noUpcomingNotifications": "No upcoming notifications."
+  },
+  "navigation": {
+    "medications": "Medications",
+    "intakes": "Intakes",
+    "schedules": "{{name}} schedules",
+    "newSchedule": "New schedule",
+    "newMedication": "New medication",
+    "editMedication": "Edit medication"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "registerTitle": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "login": "Login",
+    "register": "Register",
+    "switchToRegister": "Create account",
+    "switchToLogin": "Already have an account? Login",
+    "loading": "Loading..."
+  },
+  "medications": {
+    "title": "Medications",
+    "noItems": "No medications yet.",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "schedules": "Schedules",
+    "deactivateTitle": "Deactivate medication",
+    "deactivateMessage": "Deactivate {{name}}?",
+    "createTitle": "New medication",
+    "editTitle": "Edit medication",
+    "namePlaceholder": "Name",
+    "dosagePlaceholder": "Dosage",
+    "instructionsPlaceholder": "Instructions (optional)",
+    "save": "Save"
+  },
+  "schedules": {
+    "remindersTitle": "Reminders",
+    "remindersNote": "Reminders follow your profile timezone.",
+    "debug": {
+      "enabled": "Enabled",
+      "permission": "Permission",
+      "timezone": "Timezone",
+      "scheduled": "Scheduled notifications"
+    },
+    "noItems": "No schedules yet.",
+    "deactivate": "Deactivate",
+    "deactivateTitle": "Deactivate schedule",
+    "deactivateMessage": "Deactivate this schedule?",
+    "addTime": "Add time",
+    "timesLabel": "Times",
+    "noTimes": "No times yet",
+    "weekdaysLabel": "Weekdays",
+    "intervalLabel": "Interval hours",
+    "intervalPlaceholder": "Every X hours",
+    "recurrence": "Recurrence",
+    "medication": "Medication",
+    "saveSchedule": "Save schedule",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "interval": "Interval",
+    "summary": {
+      "daily": "Daily · {{times}}",
+      "weekly": "{{weekdays}} · {{times}}",
+      "interval": "Every {{hours}} hours"
+    },
+    "validation": {
+      "timesRequired": "Add at least one time.",
+      "weekdaysRequired": "Select at least one weekday.",
+      "intervalRequired": "Interval hours must be at least 1."
+    }
+  },
+  "intakes": {
+    "title": "Intakes",
+    "today": "Today",
+    "history": "History",
+    "taken": "Taken",
+    "skip": "Skip",
+    "noSchedules": "No schedules for today.",
+    "noHistory": "No intakes yet.",
+    "range7": "7 days",
+    "range30": "30 days",
+    "status": "{{status}} · {{time}}",
+    "historyLine": "{{summary}} · {{status}} · {{time}}"
+  },
+  "errors": {
+    "loginFailed": "Login failed",
+    "registerFailed": "Registration failed",
+    "loadMedications": "Failed to load medications",
+    "deactivateMedication": "Failed to deactivate medication",
+    "saveMedication": "Failed to save medication",
+    "loadSchedules": "Failed to load schedules",
+    "saveSchedule": "Failed to create schedule",
+    "deactivateSchedule": "Failed to deactivate schedule",
+    "loadIntakes": "Failed to load intakes",
+    "recordIntake": "Failed to record intake",
+    "updateReminders": "Failed to update reminders",
+    "loadRemindersDebug": "Failed to load notification debug info",
+    "permission": "Notification permission not granted"
+  },
+  "notifications": {
+    "reminderTitle": "Medication reminder",
+    "reminderBody": "Time to take your medication",
+    "postponedBody": "Reminder postponed"
+  },
+  "weekdays": {
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageHelp": "Choose your preferred language",
+    "english": "English",
+    "portuguese": "Portuguese (Brazil)"
+  }
+}

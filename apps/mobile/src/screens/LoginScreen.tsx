@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 
 export default function LoginScreen({ onSwitch }: Props) {
   const { login } = useAuth();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export default function LoginScreen({ onSwitch }: Props) {
     try {
       await login(email.trim(), password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : t('errors.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -27,10 +29,10 @@ export default function LoginScreen({ onSwitch }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome back</Text>
+      <Text style={styles.title}>{t('auth.welcomeBack')}</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder={t('auth.email')}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
@@ -39,17 +41,17 @@ export default function LoginScreen({ onSwitch }: Props) {
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder={t('auth.password')}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Login</Text>}
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('auth.login')}</Text>}
       </TouchableOpacity>
       <TouchableOpacity onPress={onSwitch}>
-        <Text style={styles.link}>Create an account</Text>
+        <Text style={styles.link}>{t('auth.switchToRegister')}</Text>
       </TouchableOpacity>
     </View>
   );
