@@ -14,6 +14,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { api } from '../services/api';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
+import OfflineBanner from '../components/OfflineBanner';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { cacheGet, cacheSet } from '../services/offlineCache';
 import type { AppStackParamList, Schedule } from '../navigation/types';
 import {
   disableNotifications,
@@ -39,11 +42,13 @@ type Props = NativeStackScreenProps<AppStackParamList, 'Schedules'>;
 export default function ScheduleListScreen({ navigation, route }: Props) {
   const { token, logout } = useAuth();
   const { t } = useTranslation();
+  const { isOffline } = useNetworkStatus();
   const { medication } = route.params;
   const [items, setItems] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [remindersEnabled, setRemindersEnabledState] = useState(false);
   const [remindersBusy, setRemindersBusy] = useState(false);
   const [remindersError, setRemindersError] = useState<string | null>(null);
@@ -51,12 +56,32 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   const [debugLoading, setDebugLoading] = useState(false);
   const [debugError, setDebugError] = useState<string | null>(null);
 
+  const handleReadOnly = useCallback(() => {
+    Alert.alert(t('offline.readOnlyTitle'), t('offline.readOnlyMessage'));
+  }, [t]);
+
+  const loadFromCache = useCallback(async () => {
+    const cached = await cacheGet<Schedule[]>(`schedules:${medication.id}`);
+    if (cached) {
+      setItems(cached.data);
+      setLastUpdated(cached.updatedAt);
+      setError(null);
+      return;
+    }
+    setError(t('offline.noCache'));
+  }, [medication.id, t]);
+
   useLayoutEffect(() => {
     navigation.setOptions({ title: t('navigation.schedules', { name: medication.name }) });
   }, [navigation, medication.name, t]);
 
   useLayoutEffect(() => {
     const loadReminders = async () => {
+      if (isOffline) {
+        setDebugInfo(null);
+        setDebugError(null);
+        return;
+      }
       const enabled = await isRemindersEnabled();
       setRemindersEnabledState(enabled);
       if (token) {
@@ -73,27 +98,40 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
       }
     };
     loadReminders();
-  }, [token, t]);
+  }, [token, t, isOffline]);
 
   const load = useCallback(async () => {
     if (!token) {
+      return;
+    }
+    if (isOffline) {
+      await loadFromCache();
+      setLoading(false);
+      setRefreshing(false);
       return;
     }
     setError(null);
     try {
       const data = await api.get<Schedule[]>(`/medications/${medication.id}/schedules`, token);
       setItems(data);
+      const cached = await cacheSet(`schedules:${medication.id}`, data);
+      setLastUpdated(cached.updatedAt);
     } catch (err) {
       if (err instanceof Error && 'status' in err && (err as Error & { status?: number }).status === 401) {
         await logout();
         return;
       }
-      setError(err instanceof Error ? err.message : t('errors.loadSchedules'));
+      const status = err instanceof Error && 'status' in err ? (err as Error & { status?: number }).status : null;
+      if (!status) {
+        await loadFromCache();
+      } else {
+        setError(err instanceof Error ? err.message : t('errors.loadSchedules'));
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [token, medication.id, logout, t]);
+  }, [token, isOffline, loadFromCache, medication.id, logout, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -109,6 +147,10 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
 
   const handleToggleReminders = useCallback(async () => {
     if (!token) {
+      return;
+    }
+    if (isOffline) {
+      handleReadOnly();
       return;
     }
     setRemindersBusy(true);
@@ -130,10 +172,14 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
     } finally {
       setRemindersBusy(false);
     }
-  }, [token, remindersEnabled, t]);
+  }, [token, remindersEnabled, t, isOffline, handleReadOnly]);
 
   const handleRefreshDebug = useCallback(async () => {
     if (!token) {
+      return;
+    }
+    if (isOffline) {
+      handleReadOnly();
       return;
     }
     setDebugLoading(true);
@@ -146,7 +192,7 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
     } finally {
       setDebugLoading(false);
     }
-  }, [token, t]);
+  }, [token, t, isOffline, handleReadOnly]);
 
   const handleDeactivate = useCallback(
     (item: Schedule) => {
@@ -205,6 +251,8 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
       {remindersError ? <Text style={styles.error}>{remindersError}</Text> : null}
       {debugError ? <Text style={styles.error}>{debugError}</Text> : null}
 
+      <OfflineBanner isOffline={isOffline} lastUpdated={lastUpdated} />
+
       <View style={styles.reminderCard}>
         <View style={styles.reminderRow}>
           <View>
@@ -219,7 +267,7 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
             <Text
               style={[styles.secondaryButtonText, remindersEnabled && styles.secondaryButtonTextActive]}
             >
-              {remindersEnabled ? 'Disable' : 'Enable'}
+              {remindersEnabled ? t('common.disable') : t('common.enable')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -263,7 +311,7 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
               <Text style={styles.cardSubtitle}>{renderSummary(item)}</Text>
               <TouchableOpacity
                 style={styles.dangerButton}
-                onPress={() => handleDeactivate(item)}
+                onPress={() => (isOffline ? handleReadOnly() : handleDeactivate(item))}
               >
                 <Text style={styles.dangerButtonText}>{t('schedules.deactivate')}</Text>
               </TouchableOpacity>
@@ -274,7 +322,9 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => navigation.navigate('ScheduleForm', { medication })}
+        onPress={() =>
+          isOffline ? handleReadOnly() : navigation.navigate('ScheduleForm', { medication })
+        }
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>

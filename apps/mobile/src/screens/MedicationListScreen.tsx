@@ -15,6 +15,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
+import OfflineBanner from '../components/OfflineBanner';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { cacheGet, cacheSet } from '../services/offlineCache';
 import type { AppStackParamList, Medication } from '../navigation/types';
 
 type Navigation = NativeStackNavigationProp<AppStackParamList>;
@@ -23,30 +26,60 @@ export default function MedicationListScreen() {
   const { token, logout } = useAuth();
   const navigation = useNavigation<Navigation>();
   const { t } = useTranslation();
+  const { isOffline } = useNetworkStatus();
   const [items, setItems] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  const loadFromCache = useCallback(async () => {
+    const cached = await cacheGet<Medication[]>('medications');
+    if (cached) {
+      setItems(cached.data);
+      setLastUpdated(cached.updatedAt);
+      setError(null);
+      return;
+    }
+    setError(t('offline.noCache'));
+  }, [t]);
+
+  const handleReadOnly = useCallback(() => {
+    Alert.alert(t('offline.readOnlyTitle'), t('offline.readOnlyMessage'));
+  }, [t]);
 
   const load = useCallback(async () => {
     if (!token) {
+      return;
+    }
+    if (isOffline) {
+      await loadFromCache();
+      setLoading(false);
+      setRefreshing(false);
       return;
     }
     setError(null);
     try {
       const data = await api.get<Medication[]>('/medications', token);
       setItems(data);
+      const cached = await cacheSet('medications', data);
+      setLastUpdated(cached.updatedAt);
     } catch (err) {
       if (err instanceof Error && 'status' in err && (err as Error & { status?: number }).status === 401) {
         await logout();
         return;
       }
-      setError(err instanceof Error ? err.message : t('errors.loadMedications'));
+      const status = err instanceof Error && 'status' in err ? (err as Error & { status?: number }).status : null;
+      if (!status) {
+        await loadFromCache();
+      } else {
+        setError(err instanceof Error ? err.message : t('errors.loadMedications'));
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [token, logout, t]);
+  }, [token, isOffline, loadFromCache, logout, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -109,6 +142,8 @@ export default function MedicationListScreen() {
         </View>
       </View>
 
+      <OfflineBanner isOffline={isOffline} lastUpdated={lastUpdated} />
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {items.length === 0 ? (
@@ -136,13 +171,17 @@ export default function MedicationListScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.secondaryButton}
-                  onPress={() => navigation.navigate('MedicationForm', { medication: item })}
+                  onPress={() =>
+                    isOffline
+                      ? handleReadOnly()
+                      : navigation.navigate('MedicationForm', { medication: item })
+                  }
                 >
                   <Text style={styles.secondaryButtonText}>{t('medications.edit')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.dangerButton}
-                  onPress={() => handleDeactivate(item)}
+                  onPress={() => (isOffline ? handleReadOnly() : handleDeactivate(item))}
                 >
                   <Text style={styles.dangerButtonText}>{t('medications.deactivate')}</Text>
                 </TouchableOpacity>
@@ -154,7 +193,7 @@ export default function MedicationListScreen() {
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => navigation.navigate('MedicationForm', {})}
+        onPress={() => (isOffline ? handleReadOnly() : navigation.navigate('MedicationForm', {}))}
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>

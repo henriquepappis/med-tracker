@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
 import { api } from './api';
 import i18n from '../i18n';
+import { cacheGet, cacheSet } from './offlineCache';
 import type { Medication, Schedule } from '../navigation/types';
 
 const REMINDERS_KEY = 'med-tracker-reminders-enabled';
@@ -226,8 +227,15 @@ async function fetchSchedules(token: string): Promise<ScheduleWithMedication[]> 
 }
 
 async function fetchTimezone(token: string): Promise<string | null> {
-  const profile = await api.get<UserProfile>('/user/profile', token);
-  return profile.timezone ?? null;
+  const cacheKey = 'user-profile';
+  try {
+    const profile = await api.get<UserProfile>('/user/profile', token);
+    await cacheSet(cacheKey, profile);
+    return profile.timezone ?? null;
+  } catch {
+    const cached = await cacheGet<UserProfile>(cacheKey);
+    return cached?.data?.timezone ?? null;
+  }
 }
 
 export async function syncNotifications(token: string): Promise<void> {

@@ -13,6 +13,13 @@
     "notAvailable": "No disponible",
     "noUpcomingNotifications": "No hay notificaciones próximas."
   },
+  "offline": {
+    "title": "Modo sin conexión",
+    "lastUpdated": "Última actualización: {{time}}",
+    "readOnlyTitle": "Sin conexión",
+    "readOnlyMessage": "Estás sin conexión. Las acciones están deshabilitadas.",
+    "noCache": "No hay datos en caché."
+  },
   "navigation": {
     "medications": "Medicamentos",
     "intakes": "Ingestas",
