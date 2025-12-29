@@ -1,19 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import OfflineBanner from '../components/OfflineBanner';
+import EmptyState from '../components/EmptyState';
+import ListSkeleton from '../components/ListSkeleton';
+import Toast from '../components/Toast';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { cacheGet, cacheSet } from '../services/offlineCache';
 import { getQueuedIntakes, recordIntakeOfflineAware } from '../services/offlineIntakeQueue';
@@ -83,6 +79,7 @@ export default function IntakeScreen({ navigation }: Props) {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: t('intakes.title') });
@@ -243,7 +240,7 @@ export default function IntakeScreen({ navigation }: Props) {
             },
           ];
         });
-        handleReadOnly();
+        setToast(t('intakes.queued'));
         return;
       }
       await load();
@@ -262,14 +259,14 @@ export default function IntakeScreen({ navigation }: Props) {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <ListSkeleton rows={3} />
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <OfflineBanner isOffline={isOffline} lastUpdated={lastUpdated} />
@@ -293,7 +290,20 @@ export default function IntakeScreen({ navigation }: Props) {
         <FlatList
           data={schedules.filter(scheduleOccursToday)}
           keyExtractor={(item) => String(item.id)}
-          ListEmptyComponent={<Text style={styles.empty}>{t('intakes.noSchedules')}</Text>}
+          ListEmptyComponent={(
+            <EmptyState
+              title={t('intakes.noSchedules')}
+              message={t('schedules.emptyCta')}
+              action={(
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={() => navigation.navigate('Medications')}
+                >
+                  <Text style={styles.primaryButtonText}>{t('medications.title')}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
           renderItem={({ item }) => {
             const medication = medicationMap.get(item.medication_id);
             const status = todayScheduleStatus.get(item.id);
@@ -345,7 +355,7 @@ export default function IntakeScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
           {historyGroups.length === 0 ? (
-            <Text style={styles.empty}>{t('intakes.noHistory')}</Text>
+            <EmptyState title={t('intakes.noHistory')} />
           ) : (
             <FlatList
               data={historyGroups}
@@ -375,7 +385,8 @@ export default function IntakeScreen({ navigation }: Props) {
           )}
         </View>
       )}
-    </View>
+      {toast ? <Toast message={toast} onHide={() => setToast(null)} /> : null}
+    </SafeAreaView>
   );
 }
 
@@ -461,9 +472,15 @@ const styles = StyleSheet.create({
     color: '#1b1b1b',
     fontWeight: '600',
   },
-  empty: {
-    color: '#7d7a75',
-    marginTop: 12,
+  primaryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    backgroundColor: '#1b1b1b',
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   historyContainer: {
     flex: 1,

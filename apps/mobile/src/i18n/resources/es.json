@@ -7,6 +7,7 @@
     "logout": "Cerrar sesión",
     "refreshDebug": "Actualizar depuración",
     "loading": "Cargando...",
+    "success": "Éxito",
     "yes": "sí",
     "no": "no",
     "notSet": "no definido",
@@ -43,6 +44,7 @@
   "medications": {
     "title": "Medicamentos",
     "noItems": "Sin medicamentos.",
+    "emptyCta": "Agregar primer medicamento",
     "edit": "Editar",
     "deactivate": "Desactivar",
     "schedules": "Rutinas",
@@ -65,6 +67,7 @@
       "scheduled": "Notificaciones programadas"
     },
     "noItems": "Sin rutinas.",
+    "emptyCta": "Crear rutina",
     "deactivate": "Desactivar",
     "deactivateTitle": "Desactivar rutina",
     "deactivateMessage": "¿Desactivar esta rutina?",
@@ -99,6 +102,7 @@
     "skip": "Omitir",
     "noSchedules": "Sin rutinas para hoy.",
     "noHistory": "Sin ingestas.",
+    "queued": "Guardado sin conexión. Se sincronizará al estar online.",
     "range7": "7 días",
     "range30": "30 días",
     "status": "{{status}} · {{time}}",
@@ -118,6 +122,10 @@
     "updateReminders": "Error al actualizar recordatorios",
     "loadRemindersDebug": "Error al cargar depuración de notificaciones",
     "permission": "Permiso de notificaciones no concedido"
+  },
+  "success": {
+    "saved": "Guardado con éxito",
+    "deactivated": "Desactivado"
   },
   "notifications": {
     "reminderTitle": "Recordatorio de medicamento",

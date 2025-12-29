@@ -1,6 +1,5 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   FlatList,
   RefreshControl,
@@ -11,10 +10,14 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../services/api';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
 import OfflineBanner from '../components/OfflineBanner';
+import EmptyState from '../components/EmptyState';
+import ListSkeleton from '../components/ListSkeleton';
+import Toast from '../components/Toast';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { cacheGet, cacheSet } from '../services/offlineCache';
 import type { AppStackParamList, Schedule } from '../navigation/types';
@@ -55,6 +58,7 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   const [debugInfo, setDebugInfo] = useState<NotificationDebugInfo | null>(null);
   const [debugLoading, setDebugLoading] = useState(false);
   const [debugError, setDebugError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleReadOnly = useCallback(() => {
     Alert.alert(t('offline.readOnlyTitle'), t('offline.readOnlyMessage'));
@@ -208,6 +212,7 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
             try {
               await api.delete(`/schedules/${item.id}`, token);
               setItems((prev) => prev.filter((schedule) => schedule.id !== item.id));
+              setToast(t('success.deactivated'));
             } catch (err) {
               setError(err instanceof Error ? err.message : t('errors.deactivateSchedule'));
             }
@@ -239,14 +244,14 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <ListSkeleton rows={3} />
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {remindersError ? <Text style={styles.error}>{remindersError}</Text> : null}
       {debugError ? <Text style={styles.error}>{debugError}</Text> : null}
@@ -295,9 +300,20 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
       </View>
 
       {items.length === 0 ? (
-        <View style={styles.empty}>
-          <Text style={styles.emptyText}>{t('schedules.noItems')}</Text>
-        </View>
+        <EmptyState
+          title={t('schedules.noItems')}
+          message={t('schedules.emptyCta')}
+          action={(
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() =>
+                isOffline ? handleReadOnly() : navigation.navigate('ScheduleForm', { medication })
+              }
+            >
+              <Text style={styles.primaryButtonText}>{t('schedules.saveSchedule')}</Text>
+            </TouchableOpacity>
+          )}
+        />
       ) : (
         <FlatList
           data={items}
@@ -305,10 +321,12 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>
-                {t(`schedules.${item.recurrence_type}` as const).toUpperCase()}
-              </Text>
-              <Text style={styles.cardSubtitle}>{renderSummary(item)}</Text>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardTitle}>{renderSummary(item)}</Text>
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{t(`schedules.${item.recurrence_type}` as const)}</Text>
+                </View>
+              </View>
               <TouchableOpacity
                 style={styles.dangerButton}
                 onPress={() => (isOffline ? handleReadOnly() : handleDeactivate(item))}
@@ -328,7 +346,8 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
-    </View>
+      {toast ? <Toast message={toast} onHide={() => setToast(null)} /> : null}
+    </SafeAreaView>
   );
 }
 
@@ -338,22 +357,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f5f2',
     padding: 20,
   },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   error: {
     color: '#b00020',
     marginBottom: 12,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    color: '#7d7a75',
   },
   card: {
     backgroundColor: '#fff',
@@ -361,10 +367,26 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+  },
   cardTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
+  },
+  badge: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: '#f0ede8',
+  },
+  badgeText: {
     color: '#6a6660',
+    fontSize: 11,
+    fontWeight: '600',
   },
   reminderCard: {
     backgroundColor: '#fff',
@@ -409,11 +431,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 12,
   },
-  cardSubtitle: {
-    marginTop: 6,
-    fontSize: 16,
-    fontWeight: '600',
-  },
   dangerButton: {
     marginTop: 12,
     paddingVertical: 8,
@@ -423,6 +440,16 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   dangerButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  primaryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    backgroundColor: '#1b1b1b',
+  },
+  primaryButtonText: {
     color: '#fff',
     fontWeight: '600',
   },

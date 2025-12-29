@@ -1,14 +1,5 @@
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,6 +7,9 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import OfflineBanner from '../components/OfflineBanner';
+import EmptyState from '../components/EmptyState';
+import ListSkeleton from '../components/ListSkeleton';
+import Toast from '../components/Toast';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { cacheGet, cacheSet } from '../services/offlineCache';
 import type { AppStackParamList, Medication } from '../navigation/types';
@@ -32,6 +26,7 @@ export default function MedicationListScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const loadFromCache = useCallback(async () => {
     const cached = await cacheGet<Medication[]>('medications');
@@ -107,6 +102,7 @@ export default function MedicationListScreen() {
             try {
               await api.delete(`/medications/${item.id}`, token);
               setItems((prev) => prev.filter((med) => med.id !== item.id));
+              setToast(t('success.deactivated'));
             } catch (err) {
               setError(err instanceof Error ? err.message : t('errors.deactivateMedication'));
             }
@@ -119,8 +115,8 @@ export default function MedicationListScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
+      <View style={styles.container}>
+        <ListSkeleton rows={3} />
       </View>
     );
   }
@@ -147,9 +143,18 @@ export default function MedicationListScreen() {
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {items.length === 0 ? (
-        <View style={styles.empty}>
-          <Text style={styles.emptyText}>{t('medications.noItems')}</Text>
-        </View>
+        <EmptyState
+          title={t('medications.noItems')}
+          message={t('medications.emptyCta')}
+          action={(
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => (isOffline ? handleReadOnly() : navigation.navigate('MedicationForm', {}))}
+            >
+              <Text style={styles.primaryButtonText}>{t('medications.createTitle')}</Text>
+            </TouchableOpacity>
+          )}
+        />
       ) : (
         <FlatList
           data={items}
@@ -197,6 +202,7 @@ export default function MedicationListScreen() {
       >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
+      {toast ? <Toast message={toast} onHide={() => setToast(null)} /> : null}
     </SafeAreaView>
   );
 }
@@ -206,11 +212,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f7f5f2',
     padding: 20,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -233,14 +234,6 @@ const styles = StyleSheet.create({
   error: {
     color: '#b00020',
     marginBottom: 12,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    color: '#7d7a75',
   },
   card: {
     backgroundColor: '#fff',
@@ -284,6 +277,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#b00020',
   },
   dangerButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  primaryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    backgroundColor: '#1b1b1b',
+  },
+  primaryButtonText: {
     color: '#fff',
     fontWeight: '600',
   },

@@ -7,6 +7,7 @@
     "logout": "Logout",
     "refreshDebug": "Refresh debug",
     "loading": "Loading...",
+    "success": "Success",
     "yes": "yes",
     "no": "no",
     "notSet": "not set",
@@ -43,6 +44,7 @@
   "medications": {
     "title": "Medications",
     "noItems": "No medications yet.",
+    "emptyCta": "Add your first medication",
     "edit": "Edit",
     "deactivate": "Deactivate",
     "schedules": "Schedules",
@@ -65,6 +67,7 @@
       "scheduled": "Scheduled notifications"
     },
     "noItems": "No schedules yet.",
+    "emptyCta": "Create a schedule",
     "deactivate": "Deactivate",
     "deactivateTitle": "Deactivate schedule",
     "deactivateMessage": "Deactivate this schedule?",
@@ -99,6 +102,7 @@
     "skip": "Skip",
     "noSchedules": "No schedules for today.",
     "noHistory": "No intakes yet.",
+    "queued": "Saved offline. Will sync when online.",
     "range7": "7 days",
     "range30": "30 days",
     "status": "{{status}} · {{time}}",
@@ -118,6 +122,10 @@
     "updateReminders": "Failed to update reminders",
     "loadRemindersDebug": "Failed to load notification debug info",
     "permission": "Notification permission not granted"
+  },
+  "success": {
+    "saved": "Saved successfully",
+    "deactivated": "Deactivated"
   },
   "notifications": {
     "reminderTitle": "Medication reminder",

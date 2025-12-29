@@ -7,6 +7,7 @@
     "logout": "Sair",
     "refreshDebug": "Atualizar debug",
     "loading": "Carregando...",
+    "success": "Sucesso",
     "yes": "sim",
     "no": "não",
     "notSet": "não definido",
@@ -43,6 +44,7 @@
   "medications": {
     "title": "Medicamentos",
     "noItems": "Nenhum medicamento ainda.",
+    "emptyCta": "Adicionar primeiro medicamento",
     "edit": "Editar",
     "deactivate": "Desativar",
     "schedules": "Rotinas",
@@ -65,6 +67,7 @@
       "scheduled": "Notificações agendadas"
     },
     "noItems": "Nenhuma rotina ainda.",
+    "emptyCta": "Criar rotina",
     "deactivate": "Desativar",
     "deactivateTitle": "Desativar rotina",
     "deactivateMessage": "Desativar esta rotina?",
@@ -99,6 +102,7 @@
     "skip": "Pular",
     "noSchedules": "Sem rotinas para hoje.",
     "noHistory": "Nenhuma ingestão ainda.",
+    "queued": "Salvo offline. Vai sincronizar quando online.",
     "range7": "7 dias",
     "range30": "30 dias",
     "status": "{{status}} · {{time}}",
@@ -118,6 +122,10 @@
     "updateReminders": "Falha ao atualizar lembretes",
     "loadRemindersDebug": "Falha ao carregar debug das notificações",
     "permission": "Permissão de notificação não concedida"
+  },
+  "success": {
+    "saved": "Salvo com sucesso",
+    "deactivated": "Desativado"
   },
   "notifications": {
     "reminderTitle": "Lembrete de medicamento",
