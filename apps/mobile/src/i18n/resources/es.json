@@ -1,0 +1,138 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "enable": "Activar",
+    "disable": "Desactivar",
+    "logout": "Cerrar sesión",
+    "refreshDebug": "Actualizar depuración",
+    "loading": "Cargando...",
+    "yes": "sí",
+    "no": "no",
+    "notSet": "no definido",
+    "notAvailable": "No disponible",
+    "noUpcomingNotifications": "No hay notificaciones próximas."
+  },
+  "navigation": {
+    "medications": "Medicamentos",
+    "intakes": "Ingestas",
+    "schedules": "Rutinas de {{name}}",
+    "newSchedule": "Nueva rutina",
+    "newMedication": "Nuevo medicamento",
+    "editMedication": "Editar medicamento"
+  },
+  "auth": {
+    "welcomeBack": "Bienvenido de nuevo",
+    "registerTitle": "Crear cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "switchToRegister": "Crear cuenta",
+    "switchToLogin": "¿Ya tienes una cuenta? Iniciar sesión",
+    "loading": "Cargando..."
+  },
+  "medications": {
+    "title": "Medicamentos",
+    "noItems": "Sin medicamentos.",
+    "edit": "Editar",
+    "deactivate": "Desactivar",
+    "schedules": "Rutinas",
+    "deactivateTitle": "Desactivar medicamento",
+    "deactivateMessage": "¿Desactivar {{name}}?",
+    "createTitle": "Nuevo medicamento",
+    "editTitle": "Editar medicamento",
+    "namePlaceholder": "Nombre",
+    "dosagePlaceholder": "Dosificación",
+    "instructionsPlaceholder": "Instrucciones (opcional)",
+    "save": "Guardar"
+  },
+  "schedules": {
+    "remindersTitle": "Recordatorios",
+    "remindersNote": "Los recordatorios siguen la zona horaria del perfil.",
+    "debug": {
+      "enabled": "Activo",
+      "permission": "Permiso",
+      "timezone": "Zona horaria",
+      "scheduled": "Notificaciones programadas"
+    },
+    "noItems": "Sin rutinas.",
+    "deactivate": "Desactivar",
+    "deactivateTitle": "Desactivar rutina",
+    "deactivateMessage": "¿Desactivar esta rutina?",
+    "addTime": "Agregar horario",
+    "timesLabel": "Horarios",
+    "noTimes": "Sin horarios",
+    "weekdaysLabel": "Días de la semana",
+    "intervalLabel": "Intervalo en horas",
+    "intervalPlaceholder": "Cada X horas",
+    "recurrence": "Recurrencia",
+    "medication": "Medicamento",
+    "saveSchedule": "Guardar rutina",
+    "daily": "Diario",
+    "weekly": "Semanal",
+    "interval": "Intervalo",
+    "summary": {
+      "daily": "Diario · {{times}}",
+      "weekly": "{{weekdays}} · {{times}}",
+      "interval": "Cada {{hours}} horas"
+    },
+    "validation": {
+      "timesRequired": "Agrega al menos un horario.",
+      "weekdaysRequired": "Selecciona al menos un día de la semana.",
+      "intervalRequired": "El intervalo debe ser al menos 1 hora."
+    }
+  },
+  "intakes": {
+    "title": "Ingestas",
+    "today": "Hoy",
+    "history": "Historial",
+    "taken": "Tomado",
+    "skip": "Omitir",
+    "noSchedules": "Sin rutinas para hoy.",
+    "noHistory": "Sin ingestas.",
+    "range7": "7 días",
+    "range30": "30 días",
+    "status": "{{status}} · {{time}}",
+    "historyLine": "{{summary}} · {{status}} · {{time}}"
+  },
+  "errors": {
+    "loginFailed": "Error al iniciar sesión",
+    "registerFailed": "Error al registrarse",
+    "loadMedications": "Error al cargar medicamentos",
+    "deactivateMedication": "Error al desactivar medicamento",
+    "saveMedication": "Error al guardar medicamento",
+    "loadSchedules": "Error al cargar rutinas",
+    "saveSchedule": "Error al crear rutina",
+    "deactivateSchedule": "Error al desactivar rutina",
+    "loadIntakes": "Error al cargar ingestas",
+    "recordIntake": "Error al registrar ingesta",
+    "updateReminders": "Error al actualizar recordatorios",
+    "loadRemindersDebug": "Error al cargar depuración de notificaciones",
+    "permission": "Permiso de notificaciones no concedido"
+  },
+  "notifications": {
+    "reminderTitle": "Recordatorio de medicamento",
+    "reminderBody": "Hora de tomar el medicamento",
+    "postponedBody": "Recordatorio pospuesto"
+  },
+  "weekdays": {
+    "sun": "Dom",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mié",
+    "thu": "Jue",
+    "fri": "Vie",
+    "sat": "Sáb"
+  },
+  "settings": {
+    "title": "Configuración",
+    "language": "Idioma",
+    "languageHelp": "Elige tu idioma",
+    "english": "Inglés",
+    "portuguese": "Portugués (Brasil)",
+    "spanish": "Español",
+    "french": "Francés"
+  }
+}

@@ -256,7 +256,7 @@ Status: ✅ Completed
 * Add ES / FR
 * Evaluate AI-assisted translation tooling (e.g. Intlayer)
 * Manual review for sensitive UI strings
-  Status: ⏳ Planned
+  Status: ✅ Completed
 
 ---
 

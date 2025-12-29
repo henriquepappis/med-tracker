@@ -1,0 +1,138 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "enable": "Activer",
+    "disable": "Désactiver",
+    "logout": "Se déconnecter",
+    "refreshDebug": "Rafraîchir le debug",
+    "loading": "Chargement...",
+    "yes": "oui",
+    "no": "non",
+    "notSet": "non défini",
+    "notAvailable": "Non disponible",
+    "noUpcomingNotifications": "Aucune notification à venir."
+  },
+  "navigation": {
+    "medications": "Médicaments",
+    "intakes": "Prises",
+    "schedules": "Horaires de {{name}}",
+    "newSchedule": "Nouvel horaire",
+    "newMedication": "Nouveau médicament",
+    "editMedication": "Modifier le médicament"
+  },
+  "auth": {
+    "welcomeBack": "Bon retour",
+    "registerTitle": "Créer un compte",
+    "email": "Email",
+    "password": "Mot de passe",
+    "name": "Nom",
+    "login": "Se connecter",
+    "register": "S'inscrire",
+    "switchToRegister": "Créer un compte",
+    "switchToLogin": "Vous avez déjà un compte ? Se connecter",
+    "loading": "Chargement..."
+  },
+  "medications": {
+    "title": "Médicaments",
+    "noItems": "Aucun médicament.",
+    "edit": "Modifier",
+    "deactivate": "Désactiver",
+    "schedules": "Horaires",
+    "deactivateTitle": "Désactiver le médicament",
+    "deactivateMessage": "Désactiver {{name}} ?",
+    "createTitle": "Nouveau médicament",
+    "editTitle": "Modifier le médicament",
+    "namePlaceholder": "Nom",
+    "dosagePlaceholder": "Dosage",
+    "instructionsPlaceholder": "Instructions (optionnel)",
+    "save": "Enregistrer"
+  },
+  "schedules": {
+    "remindersTitle": "Rappels",
+    "remindersNote": "Les rappels suivent le fuseau horaire du profil.",
+    "debug": {
+      "enabled": "Actif",
+      "permission": "Autorisation",
+      "timezone": "Fuseau horaire",
+      "scheduled": "Notifications planifiées"
+    },
+    "noItems": "Aucun horaire.",
+    "deactivate": "Désactiver",
+    "deactivateTitle": "Désactiver l'horaire",
+    "deactivateMessage": "Désactiver cet horaire ?",
+    "addTime": "Ajouter une heure",
+    "timesLabel": "Heures",
+    "noTimes": "Aucune heure",
+    "weekdaysLabel": "Jours de la semaine",
+    "intervalLabel": "Intervalle en heures",
+    "intervalPlaceholder": "Toutes les X heures",
+    "recurrence": "Récurrence",
+    "medication": "Médicament",
+    "saveSchedule": "Enregistrer l'horaire",
+    "daily": "Quotidien",
+    "weekly": "Hebdomadaire",
+    "interval": "Intervalle",
+    "summary": {
+      "daily": "Quotidien · {{times}}",
+      "weekly": "{{weekdays}} · {{times}}",
+      "interval": "Toutes les {{hours}} heures"
+    },
+    "validation": {
+      "timesRequired": "Ajoutez au moins une heure.",
+      "weekdaysRequired": "Sélectionnez au moins un jour de la semaine.",
+      "intervalRequired": "L'intervalle doit être d'au moins 1 heure."
+    }
+  },
+  "intakes": {
+    "title": "Prises",
+    "today": "Aujourd'hui",
+    "history": "Historique",
+    "taken": "Pris",
+    "skip": "Ignorer",
+    "noSchedules": "Aucun horaire pour aujourd'hui.",
+    "noHistory": "Aucune prise.",
+    "range7": "7 jours",
+    "range30": "30 jours",
+    "status": "{{status}} · {{time}}",
+    "historyLine": "{{summary}} · {{status}} · {{time}}"
+  },
+  "errors": {
+    "loginFailed": "Échec de la connexion",
+    "registerFailed": "Échec de l'inscription",
+    "loadMedications": "Échec du chargement des médicaments",
+    "deactivateMedication": "Échec de la désactivation du médicament",
+    "saveMedication": "Échec de l'enregistrement du médicament",
+    "loadSchedules": "Échec du chargement des horaires",
+    "saveSchedule": "Échec de la création de l'horaire",
+    "deactivateSchedule": "Échec de la désactivation de l'horaire",
+    "loadIntakes": "Échec du chargement des prises",
+    "recordIntake": "Échec de l'enregistrement de la prise",
+    "updateReminders": "Échec de la mise à jour des rappels",
+    "loadRemindersDebug": "Échec du chargement du debug des notifications",
+    "permission": "Autorisation de notification non accordée"
+  },
+  "notifications": {
+    "reminderTitle": "Rappel de médicament",
+    "reminderBody": "Il est temps de prendre votre médicament",
+    "postponedBody": "Rappel reporté"
+  },
+  "weekdays": {
+    "sun": "Dim",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mer",
+    "thu": "Jeu",
+    "fri": "Ven",
+    "sat": "Sam"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "languageHelp": "Choisissez votre langue",
+    "english": "Anglais",
+    "portuguese": "Portugais (Brésil)",
+    "spanish": "Espagnol",
+    "french": "Français"
+  }
+}
