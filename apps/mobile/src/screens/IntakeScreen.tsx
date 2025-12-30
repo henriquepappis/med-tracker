@@ -1,22 +1,18 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import OfflineBanner from '../components/OfflineBanner';
+import EmptyState from '../components/EmptyState';
+import ListSkeleton from '../components/ListSkeleton';
+import Toast from '../components/Toast';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { cacheGet, cacheSet } from '../services/offlineCache';
-import { getQueuedIntakes, recordIntakeOfflineAware } from '../services/offlineIntakeQueue';
+import { getQueuedIntakes, recordIntakeOfflineAware, removeQueuedIntake } from '../services/offlineIntakeQueue';
 import type { AppStackParamList, Intake, Medication, Schedule } from '../navigation/types';
 
 const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -83,14 +79,11 @@ export default function IntakeScreen({ navigation }: Props) {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: t('intakes.title') });
   }, [navigation, t]);
-
-  const handleReadOnly = useCallback(() => {
-    Alert.alert(t('offline.readOnlyTitle'), t('offline.readOnlyMessage'));
-  }, [t]);
 
   const loadFromCache = useCallback(async () => {
     const medsCache = await cacheGet<Medication[]>('medications');
@@ -243,13 +236,46 @@ export default function IntakeScreen({ navigation }: Props) {
             },
           ];
         });
-        handleReadOnly();
+        setToast(t('intakes.queued'));
         return;
       }
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.recordIntake'));
     }
+  };
+
+  const handleRemoveIntake = async (intake: Intake) => {
+    if (!token) {
+      return;
+    }
+    if (intake.id < 0) {
+      await removeQueuedIntake(intake.schedule_id, intake.status, intake.taken_at);
+      setIntakes((prev) => prev.filter((item) => item.id !== intake.id));
+      setToast(t('success.removed'));
+      return;
+    }
+    if (isOffline) {
+      setToast(t('offline.readOnlyMessage'));
+      return;
+    }
+
+    Alert.alert(t('intakes.removeTitle'), t('intakes.removeMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('intakes.remove'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.delete(`/intakes/${intake.id}`, token);
+            await load();
+            setToast(t('success.removed'));
+          } catch (err) {
+            setError(err instanceof Error ? err.message : t('errors.deleteIntake'));
+          }
+        },
+      },
+    ]);
   };
 
   const todayScheduleStatus = useMemo(() => {
@@ -262,14 +288,14 @@ export default function IntakeScreen({ navigation }: Props) {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <ListSkeleton rows={3} />
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <OfflineBanner isOffline={isOffline} lastUpdated={lastUpdated} />
@@ -293,7 +319,20 @@ export default function IntakeScreen({ navigation }: Props) {
         <FlatList
           data={schedules.filter(scheduleOccursToday)}
           keyExtractor={(item) => String(item.id)}
-          ListEmptyComponent={<Text style={styles.empty}>{t('intakes.noSchedules')}</Text>}
+          ListEmptyComponent={(
+            <EmptyState
+              title={t('intakes.noSchedules')}
+              message={t('schedules.emptyCta')}
+              action={(
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={() => navigation.navigate('Medications')}
+                >
+                  <Text style={styles.primaryButtonText}>{t('medications.title')}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
           renderItem={({ item }) => {
             const medication = medicationMap.get(item.medication_id);
             const status = todayScheduleStatus.get(item.id);
@@ -323,6 +362,14 @@ export default function IntakeScreen({ navigation }: Props) {
                   >
                     <Text style={styles.secondaryButtonText}>{t('intakes.skip')}</Text>
                   </TouchableOpacity>
+                  {status ? (
+                    <TouchableOpacity
+                      style={styles.dangerButton}
+                      onPress={() => handleRemoveIntake(status)}
+                    >
+                      <Text style={styles.dangerButtonText}>{t('intakes.remove')}</Text>
+                    </TouchableOpacity>
+                  ) : null}
                 </View>
               </View>
             );
@@ -345,7 +392,7 @@ export default function IntakeScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
           {historyGroups.length === 0 ? (
-            <Text style={styles.empty}>{t('intakes.noHistory')}</Text>
+            <EmptyState title={t('intakes.noHistory')} />
           ) : (
             <FlatList
               data={historyGroups}
@@ -358,7 +405,12 @@ export default function IntakeScreen({ navigation }: Props) {
                     const schedule = scheduleMap.get(intake.schedule_id);
                     return (
                       <View key={intake.id} style={styles.historyItem}>
-                        <Text style={styles.historyMedication}>{medication?.name ?? t('medications.title')}</Text>
+                        <View style={styles.historyRow}>
+                          <Text style={styles.historyMedication}>{medication?.name ?? t('medications.title')}</Text>
+                          <TouchableOpacity onPress={() => handleRemoveIntake(intake)}>
+                            <Text style={styles.historyRemove}>{t('intakes.remove')}</Text>
+                          </TouchableOpacity>
+                        </View>
                         <Text style={styles.historyMeta}>
                           {t('intakes.historyLine', {
                             summary: schedule ? scheduleSummary(schedule, t) : t('common.notAvailable'),
@@ -375,7 +427,8 @@ export default function IntakeScreen({ navigation }: Props) {
           )}
         </View>
       )}
-    </View>
+      {toast ? <Toast message={toast} onHide={() => setToast(null)} /> : null}
+    </SafeAreaView>
   );
 }
 
@@ -461,9 +514,25 @@ const styles = StyleSheet.create({
     color: '#1b1b1b',
     fontWeight: '600',
   },
-  empty: {
-    color: '#7d7a75',
-    marginTop: 12,
+  dangerButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#b00020',
+  },
+  dangerButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  primaryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    backgroundColor: '#1b1b1b',
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   historyContainer: {
     flex: 1,
@@ -505,9 +574,20 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
   },
+  historyRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+  },
   historyMedication: {
     fontSize: 15,
     fontWeight: '600',
+  },
+  historyRemove: {
+    color: '#b00020',
+    fontWeight: '600',
+    fontSize: 12,
   },
   historyMeta: {
     marginTop: 4,

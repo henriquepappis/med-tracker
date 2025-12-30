@@ -7,6 +7,7 @@
     "logout": "Sair",
     "refreshDebug": "Atualizar debug",
     "loading": "Carregando...",
+    "success": "Sucesso",
     "yes": "sim",
     "no": "não",
     "notSet": "não definido",
@@ -21,12 +22,37 @@
     "noCache": "Sem dados em cache."
   },
   "navigation": {
+    "home": "Início",
     "medications": "Medicamentos",
     "intakes": "Ingestões",
     "schedules": "Rotinas de {{name}}",
     "newSchedule": "Nova rotina",
     "newMedication": "Novo medicamento",
     "editMedication": "Editar medicamento"
+  },
+  "home": {
+    "morning": "Bom dia",
+    "afternoon": "Boa tarde",
+    "evening": "Boa noite",
+    "subtitle": "Veja o resumo do seu dia",
+    "statusTitle": "Visão geral de hoje",
+    "reminders": "Lembretes",
+    "remindersOn": "Ativo",
+    "remindersOff": "Inativo",
+    "medications": "Medicamentos",
+    "quickActions": "Atalhos",
+    "actionMedications": "Gerencie sua lista",
+    "actionSchedules": "Rotinas",
+    "actionSchedulesHelp": "Escolha um medicamento",
+    "actionIntakes": "Registrar hoje",
+    "actionSettings": "Preferências e jurídico",
+    "upcoming": "Próximas doses",
+    "noUpcoming": "Nenhuma dose próxima",
+    "noUpcomingHelp": "Crie uma rotina para ver lembretes.",
+    "metricsExpected": "Previstas",
+    "metricsTaken": "Tomadas",
+    "metricsPending": "Pendentes",
+    "metricsAdherence": "Adesão"
   },
   "auth": {
     "welcomeBack": "Bem-vindo de volta",
@@ -43,6 +69,7 @@
   "medications": {
     "title": "Medicamentos",
     "noItems": "Nenhum medicamento ainda.",
+    "emptyCta": "Adicionar primeiro medicamento",
     "edit": "Editar",
     "deactivate": "Desativar",
     "schedules": "Rotinas",
@@ -65,6 +92,7 @@
       "scheduled": "Notificações agendadas"
     },
     "noItems": "Nenhuma rotina ainda.",
+    "emptyCta": "Criar rotina",
     "deactivate": "Desativar",
     "deactivateTitle": "Desativar rotina",
     "deactivateMessage": "Desativar esta rotina?",
@@ -97,8 +125,12 @@
     "history": "Histórico",
     "taken": "Tomado",
     "skip": "Pular",
+    "remove": "Remover",
+    "removeTitle": "Remover ingestão",
+    "removeMessage": "Remover esta ingestão?",
     "noSchedules": "Sem rotinas para hoje.",
     "noHistory": "Nenhuma ingestão ainda.",
+    "queued": "Salvo offline. Vai sincronizar quando online.",
     "range7": "7 dias",
     "range30": "30 dias",
     "status": "{{status}} · {{time}}",
@@ -115,9 +147,15 @@
     "deactivateSchedule": "Falha ao desativar rotina",
     "loadIntakes": "Falha ao carregar ingestões",
     "recordIntake": "Falha ao registrar ingestão",
+    "deleteIntake": "Falha ao remover ingestão",
     "updateReminders": "Falha ao atualizar lembretes",
     "loadRemindersDebug": "Falha ao carregar debug das notificações",
     "permission": "Permissão de notificação não concedida"
+  },
+  "success": {
+    "saved": "Salvo com sucesso",
+    "deactivated": "Desativado",
+    "removed": "Removido"
   },
   "notifications": {
     "reminderTitle": "Lembrete de medicamento",

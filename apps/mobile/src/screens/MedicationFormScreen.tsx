@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import OfflineBanner from '../components/OfflineBanner';
+import Toast from '../components/Toast';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import type { AppStackParamList } from '../navigation/types';
 
@@ -28,6 +29,7 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
   const [instructions, setInstructions] = useState(editing?.instructions ?? '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -51,7 +53,8 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
       } else {
         await api.post('/medications', { name, dosage, instructions }, token);
       }
-      navigation.goBack();
+      setToast(t('success.saved'));
+      setTimeout(() => navigation.goBack(), 400);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.saveMedication'));
     } finally {
@@ -89,6 +92,7 @@ export default function MedicationFormScreen({ navigation, route }: Props) {
       >
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('common.save')}</Text>}
       </TouchableOpacity>
+      {toast ? <Toast message={toast} onHide={() => setToast(null)} /> : null}
     </View>
   );
 }

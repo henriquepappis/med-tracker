@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import OfflineBanner from '../components/OfflineBanner';
+import Toast from '../components/Toast';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import type { AppStackParamList } from '../navigation/types';
 import { isRemindersEnabled, syncNotifications } from '../services/notifications';
@@ -46,6 +47,7 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
   const [pendingTime, setPendingTime] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: t('navigation.newSchedule') });
@@ -154,7 +156,8 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
           // Ignore reminder sync errors during schedule creation.
         }
       }
-      navigation.goBack();
+      setToast(t('success.saved'));
+      setTimeout(() => navigation.goBack(), 400);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.saveSchedule'));
     } finally {
@@ -266,6 +269,7 @@ export default function ScheduleFormScreen({ navigation, route }: Props) {
           <Text style={styles.primaryButtonText}>{t('schedules.saveSchedule')}</Text>
         )}
       </TouchableOpacity>
+      {toast ? <Toast message={toast} onHide={() => setToast(null)} /> : null}
 
       {showTimePicker ? (
         <View style={styles.pickerCard}>

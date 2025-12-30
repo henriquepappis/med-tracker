@@ -7,6 +7,7 @@
     "logout": "Se déconnecter",
     "refreshDebug": "Rafraîchir le debug",
     "loading": "Chargement...",
+    "success": "Succès",
     "yes": "oui",
     "no": "non",
     "notSet": "non défini",
@@ -21,12 +22,37 @@
     "noCache": "Aucune donnée en cache."
   },
   "navigation": {
+    "home": "Accueil",
     "medications": "Médicaments",
     "intakes": "Prises",
     "schedules": "Horaires de {{name}}",
     "newSchedule": "Nouvel horaire",
     "newMedication": "Nouveau médicament",
     "editMedication": "Modifier le médicament"
+  },
+  "home": {
+    "morning": "Bonjour",
+    "afternoon": "Bon après-midi",
+    "evening": "Bonsoir",
+    "subtitle": "Voici votre journée en un coup d'œil",
+    "statusTitle": "Aperçu d'aujourd'hui",
+    "reminders": "Rappels",
+    "remindersOn": "Activés",
+    "remindersOff": "Désactivés",
+    "medications": "Médicaments",
+    "quickActions": "Actions rapides",
+    "actionMedications": "Gérer votre liste",
+    "actionSchedules": "Horaires",
+    "actionSchedulesHelp": "Choisissez un médicament",
+    "actionIntakes": "Suivre aujourd'hui",
+    "actionSettings": "Préférences et légal",
+    "upcoming": "Doses à venir",
+    "noUpcoming": "Aucune dose à venir",
+    "noUpcomingHelp": "Créez un horaire pour voir les rappels.",
+    "metricsExpected": "Prévues",
+    "metricsTaken": "Prises",
+    "metricsPending": "En attente",
+    "metricsAdherence": "Adhérence"
   },
   "auth": {
     "welcomeBack": "Bon retour",
@@ -43,6 +69,7 @@
   "medications": {
     "title": "Médicaments",
     "noItems": "Aucun médicament.",
+    "emptyCta": "Ajouter un médicament",
     "edit": "Modifier",
     "deactivate": "Désactiver",
     "schedules": "Horaires",
@@ -65,6 +92,7 @@
       "scheduled": "Notifications planifiées"
     },
     "noItems": "Aucun horaire.",
+    "emptyCta": "Créer un horaire",
     "deactivate": "Désactiver",
     "deactivateTitle": "Désactiver l'horaire",
     "deactivateMessage": "Désactiver cet horaire ?",
@@ -97,8 +125,12 @@
     "history": "Historique",
     "taken": "Pris",
     "skip": "Ignorer",
+    "remove": "Supprimer",
+    "removeTitle": "Supprimer la prise",
+    "removeMessage": "Supprimer cette prise ?",
     "noSchedules": "Aucun horaire pour aujourd'hui.",
     "noHistory": "Aucune prise.",
+    "queued": "Enregistré hors ligne. Synchronisation à la connexion.",
     "range7": "7 jours",
     "range30": "30 jours",
     "status": "{{status}} · {{time}}",
@@ -115,9 +147,15 @@
     "deactivateSchedule": "Échec de la désactivation de l'horaire",
     "loadIntakes": "Échec du chargement des prises",
     "recordIntake": "Échec de l'enregistrement de la prise",
+    "deleteIntake": "Échec de la suppression de la prise",
     "updateReminders": "Échec de la mise à jour des rappels",
     "loadRemindersDebug": "Échec du chargement du debug des notifications",
     "permission": "Autorisation de notification non accordée"
+  },
+  "success": {
+    "saved": "Enregistré avec succès",
+    "deactivated": "Désactivé",
+    "removed": "Supprimé"
   },
   "notifications": {
     "reminderTitle": "Rappel de médicament",

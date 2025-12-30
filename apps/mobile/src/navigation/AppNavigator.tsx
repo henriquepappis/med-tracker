@@ -11,6 +11,7 @@ import ScheduleFormScreen from '../screens/ScheduleFormScreen';
 import ScheduleListScreen from '../screens/ScheduleListScreen';
 import IntakeScreen from '../screens/IntakeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import HomeScreen from '../screens/HomeScreen';
 import LegalScreen from '../screens/LegalScreen';
 import type { AppStackParamList } from './types';
 
@@ -38,6 +39,11 @@ export default function AppNavigator() {
     <NavigationContainer>
       {token ? (
         <AppStack.Navigator>
+          <AppStack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
           <AppStack.Screen
             name="Medications"
             component={MedicationListScreen}

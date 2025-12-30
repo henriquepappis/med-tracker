@@ -59,6 +59,16 @@ const enqueueAction = async (action: IntakeAction) => {
 
 export const getQueuedIntakes = readQueue;
 
+export async function removeQueuedIntake(
+  scheduleId: number,
+  status: 'taken' | 'skipped',
+  takenAt: string
+): Promise<void> {
+  const queue = await readQueue();
+  const next = queue.filter((item) => buildKey(item) !== `${scheduleId}|${status}|${takenAt}`);
+  await writeQueue(next);
+}
+
 export async function recordIntakeOfflineAware(
   token: string,
   scheduleId: number,

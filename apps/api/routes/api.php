@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->prefix('schedules')->group(function () {
 Route::middleware('auth:sanctum')->prefix('intakes')->group(function () {
     Route::get('/', [IntakeController::class, 'index']);
     Route::post('/', [IntakeController::class, 'store']);
+    Route::delete('/{intake}', [IntakeController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->prefix('reports/adherence')->group(function () {
