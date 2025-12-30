@@ -453,6 +453,20 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "422":
           $ref: "#/components/responses/ValidationError"
+  /intakes/{intake}:
+    delete:
+      summary: Delete intake
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IntakeId"
+      responses:
+        "204":
+          description: Intake deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /reports/adherence/daily:
     get:
       summary: Daily adherence report
@@ -683,6 +697,12 @@ components:
         type: integer
     ScheduleId:
       name: schedule
+      in: path
+      required: true
+      schema:
+        type: integer
+    IntakeId:
+      name: intake
       in: path
       required: true
       schema:

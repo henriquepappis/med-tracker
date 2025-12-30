@@ -21,14 +21,6 @@ import Toast from '../components/Toast';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { cacheGet, cacheSet } from '../services/offlineCache';
 import type { AppStackParamList, Schedule } from '../navigation/types';
-import {
-  disableNotifications,
-  getNotificationDebugInfo,
-  isRemindersEnabled,
-  setRemindersEnabled,
-  syncNotifications,
-  type NotificationDebugInfo,
-} from '../services/notifications';
 
 const weekdayKeys: Record<string, string> = {
   mon: 'weekdays.mon',
@@ -52,12 +44,6 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [remindersEnabled, setRemindersEnabledState] = useState(false);
-  const [remindersBusy, setRemindersBusy] = useState(false);
-  const [remindersError, setRemindersError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<NotificationDebugInfo | null>(null);
-  const [debugLoading, setDebugLoading] = useState(false);
-  const [debugError, setDebugError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const handleReadOnly = useCallback(() => {
@@ -78,31 +64,6 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   useLayoutEffect(() => {
     navigation.setOptions({ title: t('navigation.schedules', { name: medication.name }) });
   }, [navigation, medication.name, t]);
-
-  useLayoutEffect(() => {
-    const loadReminders = async () => {
-      if (isOffline) {
-        setDebugInfo(null);
-        setDebugError(null);
-        return;
-      }
-      const enabled = await isRemindersEnabled();
-      setRemindersEnabledState(enabled);
-      if (token) {
-        setDebugLoading(true);
-        setDebugError(null);
-        try {
-          const info = await getNotificationDebugInfo(token);
-          setDebugInfo(info);
-        } catch (err) {
-          setDebugError(err instanceof Error ? err.message : t('errors.loadRemindersDebug'));
-        } finally {
-          setDebugLoading(false);
-        }
-      }
-    };
-    loadReminders();
-  }, [token, t, isOffline]);
 
   const load = useCallback(async () => {
     if (!token) {
@@ -149,54 +110,6 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
     void load();
   }, [load]);
 
-  const handleToggleReminders = useCallback(async () => {
-    if (!token) {
-      return;
-    }
-    if (isOffline) {
-      handleReadOnly();
-      return;
-    }
-    setRemindersBusy(true);
-    setRemindersError(null);
-    try {
-      if (remindersEnabled) {
-        await disableNotifications();
-        await setRemindersEnabled(false);
-        setRemindersEnabledState(false);
-      } else {
-        await syncNotifications(token);
-        await setRemindersEnabled(true);
-        setRemindersEnabledState(true);
-      }
-      const info = await getNotificationDebugInfo(token);
-      setDebugInfo(info);
-    } catch (err) {
-      setRemindersError(err instanceof Error ? err.message : t('errors.updateReminders'));
-    } finally {
-      setRemindersBusy(false);
-    }
-  }, [token, remindersEnabled, t, isOffline, handleReadOnly]);
-
-  const handleRefreshDebug = useCallback(async () => {
-    if (!token) {
-      return;
-    }
-    if (isOffline) {
-      handleReadOnly();
-      return;
-    }
-    setDebugLoading(true);
-    setDebugError(null);
-    try {
-      const info = await getNotificationDebugInfo(token);
-      setDebugInfo(info);
-    } catch (err) {
-      setDebugError(err instanceof Error ? err.message : t('errors.loadRemindersDebug'));
-    } finally {
-      setDebugLoading(false);
-    }
-  }, [token, t, isOffline, handleReadOnly]);
 
   const handleDeactivate = useCallback(
     (item: Schedule) => {
@@ -253,51 +166,8 @@ export default function ScheduleListScreen({ navigation, route }: Props) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      {remindersError ? <Text style={styles.error}>{remindersError}</Text> : null}
-      {debugError ? <Text style={styles.error}>{debugError}</Text> : null}
 
       <OfflineBanner isOffline={isOffline} lastUpdated={lastUpdated} />
-
-      <View style={styles.reminderCard}>
-        <View style={styles.reminderRow}>
-          <View>
-            <Text style={styles.reminderTitle}>{t('schedules.remindersTitle')}</Text>
-            <Text style={styles.reminderNote}>{t('schedules.remindersNote')}</Text>
-          </View>
-          <TouchableOpacity
-            style={[styles.secondaryButton, remindersEnabled && styles.secondaryButtonActive]}
-            onPress={handleToggleReminders}
-            disabled={remindersBusy}
-          >
-            <Text
-              style={[styles.secondaryButtonText, remindersEnabled && styles.secondaryButtonTextActive]}
-            >
-              {remindersEnabled ? t('common.disable') : t('common.enable')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {debugInfo ? (
-          <View style={styles.debugBlock}>
-            <Text style={styles.debugText}>
-              {t('schedules.debug.enabled')}: {debugInfo.enabled ? t('common.yes') : t('common.no')} · {t('schedules.debug.permission')}: {debugInfo.permissionGranted ? t('common.yes') : t('common.no')} {debugInfo.permissionStatus ? `(status ${debugInfo.permissionStatus})` : ''}
-            </Text>
-            <Text style={styles.debugText}>{t('schedules.debug.timezone')}: {debugInfo.timezone ?? t('common.notSet')}</Text>
-            <Text style={styles.debugText}>{t('schedules.debug.scheduled')}: {debugInfo.scheduledCount}</Text>
-            {debugInfo.scheduledTimes.length > 0 ? (
-              debugInfo.scheduledTimes.map((time) => (
-                <Text key={time} style={styles.debugText}>
-                  - {time}
-                </Text>
-              ))
-            ) : (
-              <Text style={styles.debugText}>{t('common.noUpcomingNotifications')}</Text>
-            )}
-          </View>
-        ) : null}
-        <TouchableOpacity style={styles.debugButton} onPress={handleRefreshDebug} disabled={debugLoading}>
-          <Text style={styles.debugButtonText}>{debugLoading ? t('common.loading') : t('common.refreshDebug')}</Text>
-        </TouchableOpacity>
-      </View>
 
       {items.length === 0 ? (
         <EmptyState
@@ -388,49 +258,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
-  reminderCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  reminderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 12,
-  },
-  reminderTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  reminderNote: {
-    color: '#7d7a75',
-    marginTop: 4,
-    fontSize: 12,
-  },
-  debugBlock: {
-    marginTop: 12,
-  },
-  debugText: {
-    color: '#4a4742',
-    fontSize: 12,
-    marginTop: 2,
-  },
-  debugButton: {
-    marginTop: 12,
-    alignSelf: 'flex-start',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#1b1b1b',
-  },
-  debugButtonText: {
-    color: '#1b1b1b',
-    fontWeight: '600',
-    fontSize: 12,
-  },
   dangerButton: {
     marginTop: 12,
     paddingVertical: 8,
@@ -452,23 +279,6 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#fff',
     fontWeight: '600',
-  },
-  secondaryButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#1b1b1b',
-  },
-  secondaryButtonActive: {
-    backgroundColor: '#1b1b1b',
-  },
-  secondaryButtonText: {
-    color: '#1b1b1b',
-    fontWeight: '600',
-  },
-  secondaryButtonTextActive: {
-    color: '#fff',
   },
   fab: {
     position: 'absolute',

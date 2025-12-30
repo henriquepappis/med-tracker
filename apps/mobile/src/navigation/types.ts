@@ -25,6 +25,7 @@ export type Intake = {
 };
 
 export type AppStackParamList = {
+  Home: undefined;
   Medications: undefined;
   MedicationForm: { medication?: Medication };
   Schedules: { medication: Medication };

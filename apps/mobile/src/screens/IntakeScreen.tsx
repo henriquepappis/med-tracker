@@ -12,7 +12,7 @@ import ListSkeleton from '../components/ListSkeleton';
 import Toast from '../components/Toast';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { cacheGet, cacheSet } from '../services/offlineCache';
-import { getQueuedIntakes, recordIntakeOfflineAware } from '../services/offlineIntakeQueue';
+import { getQueuedIntakes, recordIntakeOfflineAware, removeQueuedIntake } from '../services/offlineIntakeQueue';
 import type { AppStackParamList, Intake, Medication, Schedule } from '../navigation/types';
 
 const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -249,6 +249,39 @@ export default function IntakeScreen({ navigation }: Props) {
     }
   };
 
+  const handleRemoveIntake = async (intake: Intake) => {
+    if (!token) {
+      return;
+    }
+    if (intake.id < 0) {
+      await removeQueuedIntake(intake.schedule_id, intake.status, intake.taken_at);
+      setIntakes((prev) => prev.filter((item) => item.id !== intake.id));
+      setToast(t('success.removed'));
+      return;
+    }
+    if (isOffline) {
+      setToast(t('offline.readOnlyMessage'));
+      return;
+    }
+
+    Alert.alert(t('intakes.removeTitle'), t('intakes.removeMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('intakes.remove'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.delete(`/intakes/${intake.id}`, token);
+            await load();
+            setToast(t('success.removed'));
+          } catch (err) {
+            setError(err instanceof Error ? err.message : t('errors.deleteIntake'));
+          }
+        },
+      },
+    ]);
+  };
+
   const todayScheduleStatus = useMemo(() => {
     const map = new Map<number, Intake>();
     todayIntakes.forEach((intake) => {
@@ -333,6 +366,14 @@ export default function IntakeScreen({ navigation }: Props) {
                   >
                     <Text style={styles.secondaryButtonText}>{t('intakes.skip')}</Text>
                   </TouchableOpacity>
+                  {status ? (
+                    <TouchableOpacity
+                      style={styles.dangerButton}
+                      onPress={() => handleRemoveIntake(status)}
+                    >
+                      <Text style={styles.dangerButtonText}>{t('intakes.remove')}</Text>
+                    </TouchableOpacity>
+                  ) : null}
                 </View>
               </View>
             );
@@ -368,7 +409,12 @@ export default function IntakeScreen({ navigation }: Props) {
                     const schedule = scheduleMap.get(intake.schedule_id);
                     return (
                       <View key={intake.id} style={styles.historyItem}>
-                        <Text style={styles.historyMedication}>{medication?.name ?? t('medications.title')}</Text>
+                        <View style={styles.historyRow}>
+                          <Text style={styles.historyMedication}>{medication?.name ?? t('medications.title')}</Text>
+                          <TouchableOpacity onPress={() => handleRemoveIntake(intake)}>
+                            <Text style={styles.historyRemove}>{t('intakes.remove')}</Text>
+                          </TouchableOpacity>
+                        </View>
                         <Text style={styles.historyMeta}>
                           {t('intakes.historyLine', {
                             summary: schedule ? scheduleSummary(schedule, t) : t('common.notAvailable'),
@@ -472,6 +518,16 @@ const styles = StyleSheet.create({
     color: '#1b1b1b',
     fontWeight: '600',
   },
+  dangerButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#b00020',
+  },
+  dangerButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
   primaryButton: {
     paddingVertical: 10,
     paddingHorizontal: 18,
@@ -522,9 +578,20 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
   },
+  historyRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10,
+  },
   historyMedication: {
     fontSize: 15,
     fontWeight: '600',
+  },
+  historyRemove: {
+    color: '#b00020',
+    fontWeight: '600',
+    fontSize: 12,
   },
   historyMeta: {
     marginTop: 4,

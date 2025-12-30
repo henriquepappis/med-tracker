@@ -22,12 +22,37 @@
     "noCache": "No hay datos en caché."
   },
   "navigation": {
+    "home": "Inicio",
     "medications": "Medicamentos",
     "intakes": "Ingestas",
     "schedules": "Rutinas de {{name}}",
     "newSchedule": "Nueva rutina",
     "newMedication": "Nuevo medicamento",
     "editMedication": "Editar medicamento"
+  },
+  "home": {
+    "morning": "Buenos días",
+    "afternoon": "Buenas tardes",
+    "evening": "Buenas noches",
+    "subtitle": "Aquí tienes un resumen del día",
+    "statusTitle": "Resumen de hoy",
+    "reminders": "Recordatorios",
+    "remindersOn": "Activados",
+    "remindersOff": "Desactivados",
+    "medications": "Medicamentos",
+    "quickActions": "Accesos rápidos",
+    "actionMedications": "Gestiona tu lista",
+    "actionSchedules": "Rutinas",
+    "actionSchedulesHelp": "Elige un medicamento",
+    "actionIntakes": "Registrar hoy",
+    "actionSettings": "Preferencias y legal",
+    "upcoming": "Próximas dosis",
+    "noUpcoming": "No hay dosis próximas",
+    "noUpcomingHelp": "Crea una rutina para ver recordatorios.",
+    "metricsExpected": "Previstas",
+    "metricsTaken": "Tomadas",
+    "metricsPending": "Pendientes",
+    "metricsAdherence": "Adherencia"
   },
   "auth": {
     "welcomeBack": "Bienvenido de nuevo",
@@ -100,6 +125,9 @@
     "history": "Historial",
     "taken": "Tomado",
     "skip": "Omitir",
+    "remove": "Eliminar",
+    "removeTitle": "Eliminar ingesta",
+    "removeMessage": "¿Eliminar esta ingesta?",
     "noSchedules": "Sin rutinas para hoy.",
     "noHistory": "Sin ingestas.",
     "queued": "Guardado sin conexión. Se sincronizará al estar online.",
@@ -119,13 +147,15 @@
     "deactivateSchedule": "Error al desactivar rutina",
     "loadIntakes": "Error al cargar ingestas",
     "recordIntake": "Error al registrar ingesta",
+    "deleteIntake": "Error al eliminar ingesta",
     "updateReminders": "Error al actualizar recordatorios",
     "loadRemindersDebug": "Error al cargar depuración de notificaciones",
     "permission": "Permiso de notificaciones no concedido"
   },
   "success": {
     "saved": "Guardado con éxito",
-    "deactivated": "Desactivado"
+    "deactivated": "Desactivado",
+    "removed": "Eliminado"
   },
   "notifications": {
     "reminderTitle": "Recordatorio de medicamento",

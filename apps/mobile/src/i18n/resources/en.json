@@ -22,12 +22,37 @@
     "noCache": "No cached data available."
   },
   "navigation": {
+    "home": "Home",
     "medications": "Medications",
     "intakes": "Intakes",
     "schedules": "{{name}} schedules",
     "newSchedule": "New schedule",
     "newMedication": "New medication",
     "editMedication": "Edit medication"
+  },
+  "home": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "subtitle": "Here is your day at a glance",
+    "statusTitle": "Today overview",
+    "reminders": "Reminders",
+    "remindersOn": "On",
+    "remindersOff": "Off",
+    "medications": "Medications",
+    "quickActions": "Quick actions",
+    "actionMedications": "Manage your list",
+    "actionSchedules": "Schedules",
+    "actionSchedulesHelp": "Pick a medication",
+    "actionIntakes": "Track today",
+    "actionSettings": "Preferences & legal",
+    "upcoming": "Upcoming doses",
+    "noUpcoming": "No upcoming doses",
+    "noUpcomingHelp": "Create a schedule to see reminders.",
+    "metricsExpected": "Expected",
+    "metricsTaken": "Taken",
+    "metricsPending": "Pending",
+    "metricsAdherence": "Adherence"
   },
   "auth": {
     "welcomeBack": "Welcome back",
@@ -100,6 +125,9 @@
     "history": "History",
     "taken": "Taken",
     "skip": "Skip",
+    "remove": "Remove",
+    "removeTitle": "Remove intake",
+    "removeMessage": "Remove this intake entry?",
     "noSchedules": "No schedules for today.",
     "noHistory": "No intakes yet.",
     "queued": "Saved offline. Will sync when online.",
@@ -119,13 +147,15 @@
     "deactivateSchedule": "Failed to deactivate schedule",
     "loadIntakes": "Failed to load intakes",
     "recordIntake": "Failed to record intake",
+    "deleteIntake": "Failed to remove intake",
     "updateReminders": "Failed to update reminders",
     "loadRemindersDebug": "Failed to load notification debug info",
     "permission": "Notification permission not granted"
   },
   "success": {
     "saved": "Saved successfully",
-    "deactivated": "Deactivated"
+    "deactivated": "Deactivated",
+    "removed": "Removed"
   },
   "notifications": {
     "reminderTitle": "Medication reminder",

@@ -22,12 +22,37 @@
     "noCache": "Sem dados em cache."
   },
   "navigation": {
+    "home": "Início",
     "medications": "Medicamentos",
     "intakes": "Ingestões",
     "schedules": "Rotinas de {{name}}",
     "newSchedule": "Nova rotina",
     "newMedication": "Novo medicamento",
     "editMedication": "Editar medicamento"
+  },
+  "home": {
+    "morning": "Bom dia",
+    "afternoon": "Boa tarde",
+    "evening": "Boa noite",
+    "subtitle": "Veja o resumo do seu dia",
+    "statusTitle": "Visão geral de hoje",
+    "reminders": "Lembretes",
+    "remindersOn": "Ativo",
+    "remindersOff": "Inativo",
+    "medications": "Medicamentos",
+    "quickActions": "Atalhos",
+    "actionMedications": "Gerencie sua lista",
+    "actionSchedules": "Rotinas",
+    "actionSchedulesHelp": "Escolha um medicamento",
+    "actionIntakes": "Registrar hoje",
+    "actionSettings": "Preferências e jurídico",
+    "upcoming": "Próximas doses",
+    "noUpcoming": "Nenhuma dose próxima",
+    "noUpcomingHelp": "Crie uma rotina para ver lembretes.",
+    "metricsExpected": "Previstas",
+    "metricsTaken": "Tomadas",
+    "metricsPending": "Pendentes",
+    "metricsAdherence": "Adesão"
   },
   "auth": {
     "welcomeBack": "Bem-vindo de volta",
@@ -100,6 +125,9 @@
     "history": "Histórico",
     "taken": "Tomado",
     "skip": "Pular",
+    "remove": "Remover",
+    "removeTitle": "Remover ingestão",
+    "removeMessage": "Remover esta ingestão?",
     "noSchedules": "Sem rotinas para hoje.",
     "noHistory": "Nenhuma ingestão ainda.",
     "queued": "Salvo offline. Vai sincronizar quando online.",
@@ -119,13 +147,15 @@
     "deactivateSchedule": "Falha ao desativar rotina",
     "loadIntakes": "Falha ao carregar ingestões",
     "recordIntake": "Falha ao registrar ingestão",
+    "deleteIntake": "Falha ao remover ingestão",
     "updateReminders": "Falha ao atualizar lembretes",
     "loadRemindersDebug": "Falha ao carregar debug das notificações",
     "permission": "Permissão de notificação não concedida"
   },
   "success": {
     "saved": "Salvo com sucesso",
-    "deactivated": "Desativado"
+    "deactivated": "Desativado",
+    "removed": "Removido"
   },
   "notifications": {
     "reminderTitle": "Lembrete de medicamento",

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../auth/AuthContext';
+import Logo from '../components/Logo';
 
 type Props = {
   onSwitch: () => void;
@@ -29,6 +30,9 @@ export default function LoginScreen({ onSwitch }: Props) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.logoWrapper}>
+        <Logo size={96} />
+      </View>
       <Text style={styles.title}>{t('auth.welcomeBack')}</Text>
       <TextInput
         style={styles.input}
@@ -68,6 +72,10 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '600',
     marginBottom: 16,
+  },
+  logoWrapper: {
+    alignItems: 'center',
+    marginBottom: 12,
   },
   input: {
     backgroundColor: '#fff',
