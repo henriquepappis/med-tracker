@@ -85,10 +85,6 @@ export default function IntakeScreen({ navigation }: Props) {
     navigation.setOptions({ title: t('intakes.title') });
   }, [navigation, t]);
 
-  const handleReadOnly = useCallback(() => {
-    Alert.alert(t('offline.readOnlyTitle'), t('offline.readOnlyMessage'));
-  }, [t]);
-
   const loadFromCache = useCallback(async () => {
     const medsCache = await cacheGet<Medication[]>('medications');
     if (!medsCache) {
